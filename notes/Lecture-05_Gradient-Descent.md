@@ -29,7 +29,7 @@ $$
 f(y)\ge f(x)+\nabla f(x)^\top(y-x).
 $$
 
-若二阶可微，凸性对应 $H_f(x)\succeq0$。这条线性下界很重要：GD 每一步都沿着一个可靠的下界移动。
+在开凸定义域上，若二阶连续可微，凸性等价于处处 $H_f(x)\succeq0$。一阶下界用于收敛分析；GD 的实际更新还可解释为最小化当前位置的二次上界，而不是最小化这个通常无下界的线性函数。以下讨论默认无约束定义域为 $\mathbb R^d$。
 
 ## 2. 凸性、平滑性与曲率
 
@@ -79,7 +79,7 @@ $$
 
 | 情形 | 常用步长 | 可保证的收敛 | 达到误差 $\epsilon$ 的迭代量级 |
 |---|---|---|---|
-| 光滑非凸 | $\gamma=1/L$ | $\min_{k\le K}\|\nabla f(x_k)\|^2=O(1/K)$ | $O(1/\epsilon^2)$ 达到梯度范数 $\epsilon$ |
+| 光滑非凸 | $\gamma=1/L$ | $\min_{0\le k<K}\|\nabla f(x_k)\|^2=O(1/K)$ | $O(1/\epsilon^2)$ 达到梯度范数 $\epsilon$ |
 | 光滑凸 | $\gamma=1/L$ | $f(x_K)-f^\star=O(LD^2/K)$ | $O(LD^2/\epsilon)$ |
 | $L$-光滑、 $\mu$-强凸 | $\gamma=1/L$ | 距离按 $(1-\mu/L)^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
 | $L$-光滑、 $\mu$-强凸 | $\gamma=2/(L+\mu)$ | 距离按 $((L-\mu)/(L+\mu))^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
@@ -136,9 +136,9 @@ $$
 f(x_K)-f^\star=O\left(\frac{LD^2}{K^2}\right),
 $$
 
-强凸情形可达到 $(1-\sqrt{\mu/L})^K$ 型收缩。与 GD 相比，凸复杂度从 $O(L/\epsilon)$ 降为 $O(\sqrt{L/\epsilon})$。一阶光滑凸优化的下界说明 NAG 在阶数意义下已最优。
+这里假定最优点存在， $D=\|x_0-x^\star\|$；例如取 $x_{-1}=x_0$、 $\beta_0=0$，之后 $\beta_k=(k-1)/(k+2)$（ $k\ge1$），这是课件第 22 页在上式索引下的写法。强凸情形则使用固定 $\beta=(\sqrt L-\sqrt\mu)/(\sqrt L+\sqrt\mu)$，函数值间隙满足 $(1-\sqrt{\mu/L})^K$ 型上界。与 GD 相比，凸问题达到函数值误差 $\epsilon$ 的复杂度从 $O(LD^2/\epsilon)$ 降为 $O(\sqrt{LD^2/\epsilon})$。一阶光滑凸优化的下界说明其最坏情形阶数最优；这不意味着任何动量参数都能达到该速率。
 
-**直观但不是“魔法”。** Nesterov 通过外推点补偿动量方向，减少了过冲；低阶平滑一阶算法中，想从 $1/K$ 提升到 $1/K^2$，几乎需要这种“前瞻梯度”结构。
+**直觉。** Nesterov 在外推点计算梯度，配合步长和动量计划控制误差；外推、估计序列等是理解加速的不同视角，不能只凭“前瞻”二字推出 $1/K^2$。
 
 ## 7. Anderson acceleration
 
@@ -154,8 +154,9 @@ $$
 
 $$
 \alpha_k^\star
-=\arg\min_{\sum_i\alpha_{k,i}=1}
-\left\|\sum_i\alpha_{k,i}r(x_{k-i})\right\|_2^2.
+=\arg\min_{\sum_{i=0}^{m_k}\alpha_{k,i}=1}
+\left\|\sum_{i=0}^{m_k}\alpha_{k,i}r(x_{k-i})\right\|_2^2,
+\qquad m_k=\min(m,k).
 $$
 
 无阻尼的常见 Type-II 更新为
@@ -168,6 +169,8 @@ $$
 在梯度下降中常取 $G(x)=x-\gamma\nabla f(x)$，此时 $G$ 的固定点就是梯度零点。记忆长度 $m$ 决定可使用的历史，阻尼系数用于抑制系数振荡和数值不稳定。它适合求解 $x=G(x)$ 或等价地 $r(x)=0$ 的固定点问题，实践上可显著加速病态问题。
 
 **边界：** Anderson 不自动获得比 NAG 更好的最坏情形阶数；讲义用下界和实验强调其“实际有效、理论有限”。不要把实验加速误写成所有凸问题的严格优势。
+
+**与课件的区别：** accelerated slides 第 26-27 页用梯度残差和历史点组合介绍动机。上面的完整固定点算法按 [Mai–Johansson（2020），Algorithm 1](https://arxiv.org/abs/1910.08590) 书写，并显式保留映射 $G$。原生 Anderson 还可能失去全局收敛保证，实际需要阻尼、正则化或保护步骤；原课件的简写不应当作完整伪代码照搬。
 
 ## 8. 选择指南
 
@@ -200,9 +203,12 @@ $$
 
 | 主题 | 原始资料位置 |
 |---|---|
-| 凸集、凸函数、强凸与光滑 | slides PDF p. 3-10；notes PDF p. 1-3 |
-| GD 更新与三类收敛率 | slides PDF p. 11-28；notes PDF p. 2-6 |
-| Polyak、NAG、Anderson 与下界 | accelerated slides p. 3-34；notes PDF p. 1-11 |
+| 凸集、凸函数、强凸与光滑 | `01` slides PDF 页序 3、5、7-9 |
+| GD 更新、下降引理、非凸/凸/强凸速率 | `01` slides PDF 页序 11、14、17、19、21；本笔记统一为 $K$ 次更新，原稿部分公式使用 $K+1$ 项 |
+| Polyak 与 NAG 更新、步长和动量 | `03` accelerated slides PDF 页序 5、8、18-19、22-23 |
+| Anderson 与一阶下界 | `03` PDF 页序 26-27、30；完整固定点形式另见上述原论文 Algorithm 1 |
+
+表中 `01`、`03` 对应顶部配套文件的编号；页码均为 PDF 页序。笔记取 $\gamma=1/L$ 的凸 GD 界是标准补充推导，课件第 19 页采用 $1/(2L)$，两者不能混用常数。
 
 一旦训练目标变成数据集上的平均，梯度只能抽样估计：[[Lecture-06_Stochastic-Gradient-Descent]]。
 

@@ -260,6 +260,9 @@ def test_block_gradient_stepsize_bound() -> None:
 
     initial = [1.0, -0.4]
     s, Lmax, K = 2, 3.0, 8
+    # Keep exact enumeration small even if this example is later edited.
+    if s**K > 4096:
+        raise AssertionError("block-path enumeration exceeds the 4096-path budget")
     delta = f(initial)  # f*=0
     for gamma in (1 / Lmax, 1 / (2 * Lmax), 1e-6):
         states = [(initial, 1.0)]

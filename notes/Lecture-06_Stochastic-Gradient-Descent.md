@@ -16,12 +16,12 @@ $$
 \min_x F(x)=\mathbb E_{\xi\sim\mathcal D}[f(x;\xi)].
 $$
 
-数据上的经验平均只是对 $F$ 的离散近似。第 $k$ 次采样 $\xi_k$，随机梯度为 $g_k=\nabla f(x_k;\xi_k)$。本文采用常见假设：
+数据上的经验平均只是对 $F$ 的离散近似。第 $k$ 次采样 $\xi_k$，随机梯度为 $g_k=\nabla f(x_k;\xi_k)$。令 $\mathcal F_k$ 表示采样 $\xi_k$ 之前的迭代历史（包含 $x_k$），本文采用课件的条件假设：
 
 $$
-\mathbb E[g_k\mid x_k]=\nabla F(x_k),
+\mathbb E[g_k\mid\mathcal F_k]=\nabla F(x_k),
 \qquad
-\mathbb E[\|g_k-\nabla F(x_k)\|^2\mid x_k]
+\mathbb E[\|g_k-\nabla F(x_k)\|^2\mid\mathcal F_k]
 \le\sigma^2.
 $$
 
@@ -37,7 +37,7 @@ $$
 
 ## 2. 随机问题与无偏梯度
 
-**核心掌握。** 若完整损失为 $\frac1m\sum_i f_i(x)$，随机抽取 $i$ 的梯度 $\nabla f_i(x)$ 无偏，因为
+**核心掌握。** 若完整损失为 $\frac1m\sum_i f_i(x)$，均匀随机抽取 $i$ 的梯度 $\nabla f_i(x)$ 无偏，因为
 
 $$
 \mathbb E_i[\nabla f_i(x)]=\frac1m\sum_i\nabla f_i(x).
@@ -47,10 +47,18 @@ mini-batch 取 $B$ 个样本平均，方差从 $\sigma^2$ 降到约 $\sigma^2/B$
 
 ## 3. SGD 的收敛图景
 
-**核心掌握“收敛到邻域”而非精确最优。** 下列速率都以下述条件为前提：梯度无偏、条件方差有界、目标满足相应光滑性，并且步长/迭代平均方式符合定理。
+**核心掌握固定步长的噪声底与有限步长计划的区别。** 下列速率都要求前述条件无偏和有界方差，以及相应的目标假设。非凸情形还需 $F^\star=\inf_xF(x)>-\infty$；凸情形假设存在最优点且初始距离有限。
 
-- 光滑非凸： $\min_{k\le K}\mathbb E\|\nabla F(x_k)\|^2=O(1/\sqrt K)$；更严格地说，常数步长会停在与噪声有关的邻域，衰减步长可让梯度项趋零。
-- 光滑凸：平均迭代的 $F(\bar x_K)-F^\star$ 常达到 $O(1/\sqrt K)$ 的主阶。
+- 光滑非凸：固定步长 $0<\gamma\le1/L$、 $K$ 次更新满足
+
+  $$
+  \frac1K\sum_{k=0}^{K-1}\mathbb E\|\nabla F(x_k)\|^2
+  \le\frac{2\Delta_0}{\gamma K}+L\gamma\sigma^2,
+  \qquad\Delta_0=F(x_0)-F^\star.
+  $$
+
+  给定有限预算 $K$，取 $\gamma=\min\{1/L,c/\sqrt K\}$（ $c>0$ 固定）可得到 $O(1/\sqrt K)$ 主阶。该步长在这一次运行内固定、随预算变化；它与逐步递减的 $\gamma_k$ 不同。一般的逐步递减计划需要另做加权求和分析，不能断言任意递减都给出同一速率。
+- 光滑凸：合适的预算相关步长下， $\mathbb E[F(\bar x_K)]-F^\star$ 有 $O(1/\sqrt K)$ 主阶， $\bar x_K=K^{-1}\sum_{k=0}^{K-1}x_k$。
 - 光滑强凸：固定步长下通常收敛到由 $\gamma,\sigma^2,\mu$ 共同决定的噪声邻域；适当递减步长可进一步缩小。
 
 因此看到“SGD 收敛到 $x^\star$”时必须追问：是目标值、距离还是梯度范数？是否用了衰减步长？噪声假设是什么？
@@ -59,13 +67,13 @@ mini-batch 取 $B$ 个样本平均，方差从 $\sigma^2$ 降到约 $\sigma^2/B$
 
 | 情形 | 常见输出量 | 典型速率或现象 | 必须同时说明的条件 |
 |---|---|---|---|
-| 非凸 | $\min_{k\le K}\mathbb E\|\nabla F(x_k)\|^2$ | $O(1/\sqrt K)$；固定步长另有噪声底 | 无偏、有界方差、 $L$-光滑、递减步长 |
+| 非凸 | $\min_{0\le k<K}\mathbb E\|\nabla F(x_k)\|^2$ | $O(1/\sqrt K)$；固定步长另有噪声底 | 条件无偏、有界方差、 $L$-光滑、函数有下界、预算相关步长 |
 | 凸 | 平均迭代的目标间隙 | $O(1/\sqrt K)$ 型主阶 | 无偏、有界方差、凸且光滑、合适步长 |
 | 强凸 | 最优间隙或到最优点的距离 | 固定步长到噪声邻域；递减步长可继续缩小 | $\mu$-强凸、噪声模型、步长计划 |
 
 不同教材会用不同步长得到不同常数，不能只抄一个 $O(\cdot)$ 而省略条件。
 
-以一维二次目标 $f(x)=\frac\mu2x^2$、随机梯度 $g_k=\mu x_k+\xi_k$（ $\mathbb E\xi_k=0$、 $\mathrm{Var}(\xi_k)=\sigma^2$）为例，固定步长得到
+以一维二次目标 $f(x)=\frac\mu2x^2$、 $\mu>0$、随机梯度 $g_k=\mu x_k+\xi_k$ 为例。取确定初值、独立同分布且独立于此前历史的噪声，满足 $\mathbb E\xi_k=0$、 $\mathrm{Var}(\xi_k)=\sigma^2$，固定步长得到
 
 $$
 x_{k+1}=(1-\gamma\mu)x_k-\gamma\xi_k.
@@ -80,6 +88,8 @@ $$
 
 因此小步长时约为 $\gamma\sigma^2/(2\mu)$。这里衡量的是参数距离平方；目标值误差、梯度范数或非二次目标会得到不同表达式。
 
+这是笔记补充的可手算例子：条件零均值使交叉项为零，故 $\mathbb E[x_{k+1}^2]=(1-\gamma\mu)^2\mathbb E[x_k^2]+\gamma^2\sigma^2$，再求几何级数得到上式。仅有每次噪声的无条件均值为零而无跨时刻条件，不能据此推导。
+
 ## 4. Fourier/滤波视角的 Momentum SGD
 
 **熟悉推导，掌握结论。** 动量 SGD 可写为
@@ -90,7 +100,7 @@ m_k=\beta m_{k-1}+g_k,
 x_{k+1}=x_k-\gamma m_k.
 $$
 
-若取等价的 SGD 学习率 $\gamma_s=\gamma/(1-\beta)$，且 $\beta$ 不接近 1、 $\gamma$ 足够小，则小步极限下动量方法的平均行为与标准 SGD 相近。它主要抑制高频噪声、平滑更新，不应被理解为所有问题都能把 $1/\sqrt K$ 加速成 $1/K$。
+若目标 $F$ 光滑强凸，满足原定理的随机噪声等条件，并取 SGD 学习率 $\gamma_s=\gamma/(1-\beta)$、 $\beta$ 有界地远离 1、 $\gamma$ 足够小，则课件第 12-13 页描述的小步极限下，动量方法与标准 SGD 的行为近似等价。这不是逐步轨迹严格相等，也不能直接推广到一般非凸网络。动量可以平滑更新，但不应被理解为所有问题都能把 $1/\sqrt K$ 加速成 $1/K$。
 
 Nesterov momentum SGD 在外推点 $y_{k-1}$ 处采样梯度。理论上，在噪声 $\sigma^2$ 很小或迭代数 $K$ 不太大等条件下可能获得更好的瞬态；当 $K\to\infty$ 且噪声主导时，随机一阶下界限制仍然存在。
 
@@ -124,9 +134,11 @@ v_k=\beta v_{k-1}+(1-\beta)g_k\odot g_k,
 x_{k+1}=x_k-\frac{\eta}{\sqrt{v_k}+\epsilon}g_k.
 $$
 
-使用指数滑动平均避免 $v_k\to\infty$，更适合非平稳目标。 $\beta$ 越大，记忆越长。
+使用指数滑动平均，避免无衰减地累积全部历史；有界梯度下 $v_k$ 保持有界。它不保证任意无界梯度序列的 $v_k$ 都不发散。 $0\le\beta<1$ 越大，记忆越长。
 
 ### Adam
+
+为避免首步偏差修正分母为零，本小节从 $k=1$ 开始计数，初始化 $m_0=v_0=0$，在 $x_k$ 处取梯度。平方根、除法和乘法均逐坐标执行， $0\le\beta_1,\beta_2<1$、 $\epsilon>0$。
 
 $$
 m_k=\beta_1m_{k-1}+(1-\beta_1)g_k,
@@ -147,6 +159,8 @@ x_{k+1}=x_k-\frac{\eta}{\sqrt{\hat v_k}+\epsilon}\hat m_k.
 $$
 
 偏差修正消除初值为 0 造成的低估。Adam 同时有一阶平滑（类似动量）和二阶尺度估计（类似 RMSProp）。
+
+adaptive slides 第 18 页省略偏差修正；这里按原始 Adam 论文补全。它修正的是零初始化导致的矩估计偏置，不意味着经过非线性除法后的最终更新方向就是无偏梯度。
 
 ## 6. 自适应方法不是免费的
 
@@ -186,9 +200,13 @@ $$
 
 | 主题 | 原始资料位置 |
 |---|---|
-| SGD 建模、收敛与小批量 | slides PDF p. 3-31；notes PDF p. 1-11 |
-| Momentum/Nesterov SGD 与下界 | momentum slides p. 3-21；notes PDF p. 1-6 |
-| AdaGrad、RMSProp、Adam | adaptive slides PDF p. 3-21 |
+| SGD 建模、条件假设、非凸/凸/强凸界 | `01` slides PDF 页序 11、13-15、18、22-23 |
+| mini-batch 与条件独立性 | `01` PDF 页序 27-29 |
+| Momentum 更新与近似等价条件 | `03` momentum slides PDF 页序 8-9、12-13 |
+| Nesterov SGD 与随机下界 | `03` PDF 页序 14-18 |
+| AdaGrad、RMSProp、Adam | `05` adaptive slides PDF 页序 9、14、17-18；偏差修正另见 [[REFERENCES]] 中原始 Adam 论文 |
+
+编号对应顶部配套文件，页码采用 PDF 页序。一维稳态二阶矩是本笔记的独立补充推导；不将它冒充课件中的一般强凸定理。
 
 了解参数如何进入 Transformer 后，才能把这些优化器成本落实为实际显存：[[Lecture-07_Transformer-and-LLM-I]]。
 

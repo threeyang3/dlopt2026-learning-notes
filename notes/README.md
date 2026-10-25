@@ -1,30 +1,31 @@
 # 学习笔记索引
 
-这套笔记按照课程当前 14 个 Lecture 组织。每个知识点都标注了 **核心掌握 / 熟悉 / 了解**，每篇末尾有自测题。`[[...]]` 是 Obsidian 风格双链，Markdown 预览器若不解析双链，仍可按同名文件查找。
+这套笔记按照课程当前 14 个 Lecture 组织，用 **核心掌握 / 熟悉 / 了解** 提供学习建议，每篇末尾有自测题。`[[...]]` 是 Obsidian 风格双链；原生 GitHub 不解析这种链接，下面的讲次索引使用标准 Markdown 链接，专题路线保留双链便于 Obsidian 使用。
 
 - 每篇开头都有“课程定位”，说明当年核心与跨年补充内容。
 - 每篇末尾都有“资料定位”，可快速回到对应 PDF 页码。
-- 课程概要、课件覆盖和待确认内容的对照见 [[COURSE_SCOPE]]。
-- 原始论文与项目入口集中在 [[REFERENCES]]。
-- 后续增补内容遵循 [[NOTE_STANDARD]] 的定义、条件、例子、反例和来源结构。
+- 课程概要、课件覆盖和待确认内容的对照见 [课程范围](COURSE_SCOPE.md)。
+- 原始论文与项目入口集中在 [延伸文献](REFERENCES.md)。
+- 后续增补内容遵循 [编修规范](NOTE_STANDARD.md) 的定义、条件、例子、反例和来源结构。
+- 第 5、6、9、10、11、12 讲的原始页码与版本差异见 [对照核查](../SOURCE_AUDIT.md)。
 - 公式统一使用 Obsidian/MathJax 的 `$...$` 与 `$$...$$`。
 
 ## 按课程顺序
 
-1. [[Lecture-01_Introduction|第 1 讲：课程导论与深度学习建模]]
-2. [[Lecture-02_Linear-Algebra-I|第 2 讲：线性代数 I]]
-3. [[Lecture-03_Linear-Algebra-II|第 3 讲：线性代数 II]]
-4. [[Lecture-04_Probability-and-Statistics|第 4 讲：概率与统计]]
-5. [[Lecture-05_Gradient-Descent|第 5 讲：梯度下降与加速]]
-6. [[Lecture-06_Stochastic-Gradient-Descent|第 6 讲：随机梯度下降]]
-7. [[Lecture-07_Transformer-and-LLM-I|第 7 讲：Transformer 与 LLM I]]
-8. [[Lecture-08_Transformer-and-LLM-II|第 8 讲：Transformer 与 LLM II]]
-9. [[Lecture-09_Advanced-Optimizers|第 9 讲：面向 LLM 的高级优化器]]
-10. [[Lecture-10_Subspace-Optimizers|第 10 讲：子空间与分块优化]]
-11. [[Lecture-11_Zeroth-Order-Optimizers|第 11 讲：零阶优化]]
-12. [[Lecture-12_Distributed-Optimizers|第 12 讲：分布式优化]]
-13. [[Lecture-13_Mixed-Precision-Training|第 13 讲：混合精度训练]]
-14. [[Lecture-14_Efficient-Fine-Tuning-and-Inference|第 14 讲：高效微调与推理]]
+1. [第 1 讲：课程导论与深度学习建模](Lecture-01_Introduction.md)
+2. [第 2 讲：线性代数 I](Lecture-02_Linear-Algebra-I.md)
+3. [第 3 讲：线性代数 II](Lecture-03_Linear-Algebra-II.md)
+4. [第 4 讲：概率与统计](Lecture-04_Probability-and-Statistics.md)
+5. [第 5 讲：梯度下降与加速](Lecture-05_Gradient-Descent.md)
+6. [第 6 讲：随机梯度下降](Lecture-06_Stochastic-Gradient-Descent.md)
+7. [第 7 讲：Transformer 与 LLM I](Lecture-07_Transformer-and-LLM-I.md)
+8. [第 8 讲：Transformer 与 LLM II](Lecture-08_Transformer-and-LLM-II.md)
+9. [第 9 讲：面向 LLM 的高级优化器](Lecture-09_Advanced-Optimizers.md)
+10. [第 10 讲：子空间与分块优化](Lecture-10_Subspace-Optimizers.md)
+11. [第 11 讲：零阶优化](Lecture-11_Zeroth-Order-Optimizers.md)
+12. [第 12 讲：分布式优化](Lecture-12_Distributed-Optimizers.md)
+13. [第 13 讲：混合精度训练](Lecture-13_Mixed-Precision-Training.md)
+14. [第 14 讲：高效微调与推理](Lecture-14_Efficient-Fine-Tuning-and-Inference.md)
 
 ## 三条复习主线
 
