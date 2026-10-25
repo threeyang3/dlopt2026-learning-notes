@@ -2,20 +2,27 @@
 
 本目录整理自 [PKU DLOpt 2026 课程主页](https://kunyuan827.github.io/dlopt2026/) 当前 `Materials` 区域。网站共有 14 讲、35 个唯一 PDF，合计 1,179 页。资料来自 DLOpt 2024、DLOpt 2025、DLOpt 2026 以及 LLM 2025 的配套内容，已按本课程当前的 Lecture 归属重新组织。
 
+当前版本完成了数学条件、公式维度、数值格式、课程归属和 Obsidian 公式语法的第一轮体系化审校。修订明细见 [审校修订记录](REVISION_NOTES.md)。
+
 ## 目录
 
 ```text
 dlopt2026_learning_pack/
 ├── README.md                    # 课程总览与学习路线
+├── REVISION_NOTES.md            # 本轮审校与修正记录
 ├── course_page.html             # 课程主页快照
 ├── source_manifest.tsv          # 原链接、原文件名、角色与规范文件名
+├── checksums.sha256             # 35 份 PDF 的 SHA-256 校验和
 ├── download_materials.sh        # 可重复运行的下载脚本
 ├── resource_inventory.md        # 每个 PDF 的内容与页数索引
+├── tools/check_notes.py         # 双链、页内锚点、公式和清单检查
 ├── materials/                   # 按 Lecture 重命名并归档的原始 PDF
 │   ├── Lecture-01_Introduction/
 │   └── ...
 └── notes/                       # 按 Lecture 组织的 Markdown 学习笔记
     ├── README.md
+    ├── COURSE_SCOPE.md          # 当年课程范围与跨年资料归属
+    ├── REFERENCES.md            # 主要原始论文与项目入口
     ├── Lecture-01_Introduction.md
     └── ...
 ```
@@ -36,9 +43,9 @@ dlopt2026_learning_pack/
 | 阶段 | Lecture | 主线 | 进入下一阶段前应能回答 |
 |---|---|---|---|
 | 数学基础 | 01-04 | 深度学习问题建模；梯度、Jacobian、Hessian；矩阵结构；概率期望 | 为什么 DNN 训练是高维、非凸、大数据上的随机优化？ |
-| 确定性优化 | 05 | 凸性、平滑性、GD、动量与加速 | 收敛率中的 \(L,\mu\) 如何影响步长与迭代数？ |
+| 确定性优化 | 05 | 凸性、平滑性、GD、动量与加速 | 收敛率中的 $L,\mu$ 如何影响步长与迭代数？ |
 | 随机优化 | 06 | SGD、小批量、动量 SGD、AdaGrad、RMSProp、Adam | 噪声为何使 SGD 只能稳到邻域？批量如何影响样本复杂度？ |
-| 模型与系统基础 | 07-08 | Seq2Seq、Attention、Transformer；参数、FLOPs、显存、FlashAttention | \(N\)、批大小和模型宽度分别把哪一项成本放大？ |
+| 模型与系统基础 | 07-08 | Seq2Seq、Attention、Transformer；参数、FLOPs、显存、FlashAttention | $N$、批大小和模型宽度分别把哪一项成本放大？ |
 | LLM 高效训练 | 09-13 | 高级优化器、子空间、零阶、分布式、低精度 | 每项技术究竟节省参数、梯度、优化器状态、激活还是通信？ |
 | 高效适配与推理 | 14 | LoRA、DoRA、KV Cache、vLLM、投机解码 | 训练节省与推理节省分别发生在哪个阶段？ |
 
@@ -60,6 +67,8 @@ dlopt2026_learning_pack/
 
 “核心”不等于“会背”。例如 Adam 的核心是理解一阶动量、二阶累积与偏差修正各自解决什么；完整收敛证明则可按讲义选择性掌握。
 
+每篇讲义的“课程定位”说明当年核心与跨年补充内容；详细对照见 [课程范围与资料归属](notes/COURSE_SCOPE.md)。课件概要、课件正文和课堂说明不一致时，优先采用教师当年的明确说明。
+
 ## 使用建议
 
 1. 先读本讲笔记的“学习目标”和“先修关系”，再浏览原 PDF 的标题页与目录。
@@ -68,12 +77,16 @@ dlopt2026_learning_pack/
 4. 最后完成每篇末尾的自测题，并沿双链回到相关讲次。
 5. 遇到显存或计算成本，统一回到“模型参数 + 梯度 + 优化器状态 + 激活 + 通信”五分量框架。
 
+公式已统一为 Obsidian/MathJax 的 `$...$` 与 `$$...$$` 语法。每篇末尾的“资料定位”表给出重要主题在 PDF 中的页码。
+
 ## 完整性说明
 
 - 网站中注释掉的历史内容不属于当前 `Materials`，本次未混入当前讲次。
 - 同一 Lecture 4 的两个条目指向同一份概率讲义，因此只保存一份。
 - 所有 35 个文件均已通过 PDF 文件类型与页数检查。内容索引见 [资源清单](resource_inventory.md)。
 - 笔记中的推导用于串连讲义，符号可能与不同年份原稿略有差异；引用具体结论时以对应 PDF 和笔记顶部的配套文件为准。
+- 下载脚本会在获取后检查 PDF 文件类型，并用 `checksums.sha256` 验证内容没有变化。
+- 在仓库根目录运行 `python3 tools/check_notes.py` 可检查双链、相对链接、公式定界符、课程标签和资料清单。
 
 ## 版权与使用范围
 

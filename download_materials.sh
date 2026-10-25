@@ -21,4 +21,16 @@ while IFS=$'\t' read -r lecture role original_path source_url target_path; do
   curl --location --fail --silent --show-error \
     --retry 3 --retry-delay 2 \
     --output "$destination" "$source_url"
+
+  if ! file "$destination" | grep -q 'PDF document'; then
+    printf 'error: downloaded file is not a valid PDF: %s\n' "$target_path" >&2
+    exit 1
+  fi
 done < "$MANIFEST"
+
+if [[ -f "$SCRIPT_DIR/checksums.sha256" ]]; then
+  (
+    cd "$SCRIPT_DIR"
+    shasum -a 256 -c checksums.sha256
+  )
+fi

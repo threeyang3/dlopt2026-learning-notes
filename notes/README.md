@@ -2,6 +2,12 @@
 
 这套笔记按照课程当前 14 个 Lecture 组织。每个知识点都标注了 **核心掌握 / 熟悉 / 了解**，每篇末尾有自测题。`[[...]]` 是 Obsidian 风格双链，Markdown 预览器若不解析双链，仍可按同名文件查找。
 
+- 每篇开头都有“课程定位”，说明当年核心与跨年补充内容。
+- 每篇末尾都有“资料定位”，可快速回到对应 PDF 页码。
+- 课程概要、课件覆盖和待确认内容的对照见 [[COURSE_SCOPE]]。
+- 原始论文与项目入口集中在 [[REFERENCES]]。
+- 公式统一使用 Obsidian/MathJax 的 `$...$` 与 `$$...$$`。
+
 ## 按课程顺序
 
 1. [[Lecture-01_Introduction|第 1 讲：课程导论与深度学习建模]]
@@ -37,5 +43,5 @@
 
 [[Lecture-08_Transformer-and-LLM-II]] → [[Lecture-12_Distributed-Optimizers]] → [[Lecture-13_Mixed-Precision-Training]] → [[Lecture-14_Efficient-Fine-Tuning-and-Inference]]
 
-核心问题：复杂度 \(O(\cdot)\) 之外，通信、显存带宽、数值范围和硬件支持经常决定真实速度。
+核心问题：复杂度 $O(\cdot)$ 之外，通信、显存带宽、数值范围和硬件支持经常决定真实速度。
 

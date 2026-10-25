@@ -23,6 +23,7 @@
 
 - 当前课程页直接引用的 35 个 PDF 均已收录。
 - 课程主页快照保存在 `course_page.html`，用于追溯当前 Materials 列表。
+- 35 个 PDF 的 SHA-256 校验值保存在 `checksums.sha256`；PDF 更新后应重新生成。
 - DLOpt 2026 的线性代数与概率讲义原本是课程参考书章节，本次按 Lecture 切分归档，但 PDF 内保留原章节编号。
 - Lecture 4 在网站上有两个条目指向同一份 `probability_chapter.pdf`，没有重复下载。
 - 当前网页注释掉的历史材料未计作当前课程内容；原链接仍可从课程主页追溯。
@@ -37,3 +38,11 @@ bash dlopt2026_learning_pack/download_materials.sh
 ```
 
 脚本会跳过已经是 PDF 的目标文件；若想强制刷新，删除对应 PDF 后重跑。PDF 的页数和文件类型已检查，但课程主页更新后仍应重新核对讲次与文件数。
+
+下载完成后脚本会自动运行：
+
+```bash
+shasum -a 256 -c checksums.sha256
+```
+
+若来源文件已更新而校验失败，应先确认变化再决定是否更新笔记与校验清单。

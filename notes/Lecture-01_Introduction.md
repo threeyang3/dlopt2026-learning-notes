@@ -1,5 +1,7 @@
 # 第 1 讲：课程导论与深度学习建模
 
+> **课程定位**：2026 年课程核心导论；LLM 部分复用 2025 年资料。
+>
 > 配套文件：`materials/Lecture-01_Introduction/01_introduction-to-deep-learning_slides.pdf`、`02_introduction-to-llm_slides.pdf`
 
 ## 学习目标
@@ -8,37 +10,37 @@
 
 ## 1. 从分类器到训练目标
 
-**核心掌握。** 多分类器先为类别 \(c\) 计算分数
+**核心掌握。** 多分类器先为类别 $c$ 计算分数
 
-\[
+$$
 s_c=w_c^\top h+b_c,
-\]
+$$
 
 再经 softmax 变成概率
 
-\[
+$$
 p_c=\frac{e^{s_c}}{\sum_{j=1}^{C}e^{s_j}}.
-\]
+$$
 
-真实标签使用 one-hot 向量 \(q\)，交叉熵为
+真实标签使用 one-hot 向量 $q$，交叉熵为
 
-\[
+$$
 \ell(p,q)=-\sum_{c=1}^{C}q_c\log p_c.
-\]
+$$
 
-若样本 \((a_i,b_i)\) 上的模型是 \(h(x;a_i)\)、损失是 \(L(h(x;a_i),b_i)\)，参数 \(x\) 通过
+若样本 $(a_i,b_i)$ 上的模型是 $h(x;a_i)$、损失是 $L(h(x;a_i),b_i)$，参数 $x$ 通过
 
-\[
+$$
 \min_x\quad F(x)=\frac1m\sum_{i=1}^{m}L(h(x;a_i),b_i)
-\]
+$$
 
 学习得到。注意这里同时出现了“数据平均”和“非线性模型”两层结构，后面分别演化为 mini-batch 和深度网络。
 
 常见的 DNN 结构是
 
-\[
+$$
 a\longrightarrow \text{feature extractor}\longrightarrow \text{classifier}\longrightarrow \hat b.
-\]
+$$
 
 卷积网络、Transformer 的差别主要在特征提取器；最后的分类或语言模型头仍然可以写成“仿射变换 + softmax + 损失”。
 
@@ -56,11 +58,11 @@ a\longrightarrow \text{feature extractor}\longrightarrow \text{classifier}\longr
 
 **核心掌握。** 语言模型可看成给定上下文后预测下一 token 的概率函数：
 
-\[
+$$
 p_\theta(x_t\mid x_{<t}).
-\]
+$$
 
-参数 \(\theta\) 是把高维输入映射到词表概率的神经网络权重。自回归生成就是反复采样或选取下一 token，再接回上下文。训练数据、模型大小和训练 token 数共同决定能力；不能只看参数量。
+参数 $\theta$ 是把高维输入映射到词表概率的神经网络权重。自回归生成就是反复采样或选取下一 token，再接回上下文。训练数据、模型大小和训练 token 数共同决定能力；不能只看参数量。
 
 ## 4. ChatGPT 式训练流水线
 
@@ -74,6 +76,8 @@ p_\theta(x_t\mid x_{<t}).
 | Reinforcement learning | 模型生成回答 + RM 打分 | 偏向高奖励回答 | 采样、稳定性与奖励误差 |
 
 预训练先通过分词把文本编码成整数序列，再使用 Transformer 最小化下一 token 交叉熵。预训练模型具有强迁移能力，但直接部署时未必会稳定遵循指令；SFT、RM 和 RL 把“会续写文本”变成“像助手一样回答”。
+
+这是讲义采用的典型 RLHF 流水线，并非所有现代助手模型的统一配方；实践中还可能使用 DPO、规则奖励、可验证奖励或其他偏好优化方法。
 
 **了解。** RLHF 的具体强化学习算法、奖励模型训练目标以及不同厂商的数据配比；这些不是本课程的主推导对象。
 
@@ -103,6 +107,14 @@ p_\theta(x_t\mid x_{<t}).
 - 课程评分、助教信息和微信群的行政信息。
 - 具体模型排行榜、某代 LLaMA/GPT 的参数量和能力宣传。
 - Prompt engineering 的具体案例；重在实际任务中迭代验证。
+
+## 资料定位
+
+| 主题 | 原始资料位置 |
+|---|---|
+| 分类器、交叉熵、DNN 训练目标 | 深度学习 slides，PDF p. 7-22 |
+| LLM 参数、预训练、SFT、奖励模型与 RL | LLM slides，PDF p. 4-46 |
+| Prompt、RAG、工具调用与 LoRA | LLM slides，PDF p. 47-64 |
 
 ## 自测
 

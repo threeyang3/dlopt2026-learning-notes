@@ -1,5 +1,7 @@
 # 第 9 讲：面向 LLM 的高级优化器
 
+> **课程定位**：2026 年课程核心高级优化器。官网概要明确列出 Shampoo、SOAP、Muon、Lite、MuonM；本课件还包含 Adafactor、Adam-mini、Sophia 等扩展内容。
+>
 > 配套文件：`materials/Lecture-09_Advanced-Optimizers/01_advanced-optimizers_slides.pdf`
 
 ## 学习目标
@@ -10,29 +12,53 @@
 
 **核心掌握。** 统一使用
 
-\[
+$$
 \text{Memory}=\text{Model}+\text{Gradient}
 +\text{Optimizer states}+\text{Activations}.
-\]
+$$
 
-Adam 每个参数需要一阶矩 \(m\) 与二阶矩 \(v\)。若参数为 \(\Phi\)，二者各占 \(\Phi\)，模型、梯度、优化器状态合计约 \(4\Phi\) 个元素；在 FP32 下粗略为 \(16\Phi\) 字节。7B 参数仅这三项就常在数十 GB 量级，尚未计入激活。因此 Adam 的 \(m,v\) 是高级优化器的首要压缩目标。
+Adam 每个参数需要一阶矩 $m$ 与二阶矩 $v$。若参数数为 $\Phi$，模型、梯度和两个优化器状态各占 $\Phi$ 个元素，合计 $4\Phi$。全部用 FP32 时约 $16\Phi$ 字节；若模型、梯度与状态都降到 16-bit，则约 $8\Phi$ 字节。7B 参数分别约为 112GB 和 56GB（十进制），尚未计入激活和额外缓冲区。因此 Adam 的 $m,v$ 是高级优化器的首要压缩目标。
 
 ## 2. Adafactor
 
-**熟悉公式和假设。** 对矩阵参数 \(W\in\mathbb R^{m\times n}\)，Adam 的 \(V_t\) 也约 \(m\times n\)。Adafactor 假设它可由行因子 \(R_t\in\mathbb R^m\) 与列因子 \(C_t\in\mathbb R^n\) 近似：
+**熟悉公式和假设。** 对矩阵参数 $W\in\mathbb R^{m\times n}$，Adam 的 $V_t$ 也约 $m\times n$。Adafactor 用行、列边缘统计近似它。令 $G\in\mathbb R^{m\times n}$，忽略时间指数和更细的数值保护，行、列平方梯度均值为
 
-\[
-V_t\approx R_t\cdot \frac{\mathbf 1_n^\top}{n}
-\frac{\mathbf 1_m}{m}\cdot C_t.
-\]
+$$
+r_i=\frac1n\sum_{j=1}^{n}G_{ij}^2,
+\qquad
+c_j=\frac1m\sum_{i=1}^{m}G_{ij}^2.
+$$
 
-实际实现的行、列因子按平方梯度的边缘统计构造，再把状态从
+一种常见的因子化二阶矩估计为
 
-\[
+$$
+\widehat V_{ij}\approx
+\frac{r_i c_j}{\frac1m\sum_{k=1}^{m}r_k}.
+$$
+
+若要维护历史信息，可对 $r_i,c_j$ 分别使用指数滑动平均；不同实现还会在分母、偏置修正和数值下限上有所差异。关键是保存并更新 $O(m+n)$ 个统计量，把 Adam 的 $V$ 状态从
+
+$$
 O(mn)\quad\text{降到}\quad O(m+n).
-\]
+$$
 
-它还可以去掉一阶动量，只保留压缩后的二阶信息。
+它还可以选择去掉一阶动量，只保留压缩后的二阶信息。
+
+一个 $2\times3$ 的数值检查：若
+
+$$
+G=\begin{bmatrix}1&2&3\\4&5&6\end{bmatrix},
+$$
+
+则 $r=(14/3,77/3)$、$c=(8.5,14.5,22.5)$、行均值 $=91/6$。于是
+
+$$
+\widehat V_{11}
+=\frac{(14/3)(8.5)}{91/6}
+=\frac{34}{13}\approx2.615,
+$$
+
+而真实 $V_{11}=1$。这说明它是低成本近似，并非精确分解。
 
 **收益与代价：**
 
@@ -51,7 +77,7 @@ O(mn)\quad\text{降到}\quad O(m+n).
 - attention 输出与 MLP：按神经元/行成块；
 - embedding 与输出层：按 token 或列成块。
 
-与 Adam 的 \(2\Phi\) 优化器状态相比，Adam-mini 把 \(m,v\) 降到约 \(m\) 级别（只保留块统计），同时减少逐元素 sqrt/div。它复用 Adam 的块内统计设计，不要求改变模型前向逻辑。
+Adam-mini **保留完整的一阶动量 $m$**，每个参数仍有一个一阶状态；它把逐参数的二阶自适应尺度 $v$ 改写成每个参数块共享的尺度。因此优化器状态元素数可从约 $2mn$ 降到约 $mn$，论文报告约 50% 的优化器内存节省。与此同时，逐元素 sqrt/div 可变为块级标量运算。该设计不要求改变模型前向逻辑。
 
 **掌握边界：** “Hessian 近块对角”是结构性假设，不是精确全局结论；实际效果依赖模型结构与参数分组。
 
@@ -59,11 +85,11 @@ O(mn)\quad\text{降到}\quad O(m+n).
 
 **熟悉。** 牛顿方向为
 
-\[
+$$
 d=-H_f(x)^{-1}\nabla f(x).
-\]
+$$
 
-它会在曲率大的方向小步、曲率小的方向大步，但完整 Hessian 有 \(P^2\) 个元素，存储、求逆和更新都不可行。高级方法因此寻找低维或结构近似：
+它会在曲率大的方向小步、曲率小的方向大步，但完整 Hessian 有 $P^2$ 个元素，存储、求逆和更新都不可行。高级方法因此寻找低维或结构近似：
 
 - 对角 Hessian；
 - Kronecker 因子；
@@ -72,20 +98,20 @@ d=-H_f(x)^{-1}\nabla f(x).
 
 ## 5. Shampoo 与 SOAP
 
-**熟悉名称与核心机制。** 对参数矩阵 \(W\in\mathbb R^{m\times n}\) 与梯度 \(G\in\mathbb R^{m\times n}\)，Shampoo 累积左右两边的二阶信息，例如
+**熟悉名称与核心机制。** 对参数矩阵 $W\in\mathbb R^{m\times n}$ 与梯度 $G\in\mathbb R^{m\times n}$，Shampoo 累积左右两边的二阶信息，例如
 
-\[
+$$
 L_t=\beta L_{t-1}+GG^\top,\qquad
 R_t=\beta R_{t-1}+G^\top G.
-\]
+$$
 
 更新近似使用
 
-\[
+$$
 W_{t+1}=W_t-\eta L_t^{-1/4}G_tR_t^{-1/4}.
-\]
+$$
 
-\(-1/4\) 来自在两侧进行 Kronecker 型预条件后的综合效果，而不是普通 \(2\times2\) Hessian 的直接反演。实际系统通过特征分解、矩阵根与周期更新控制开销。
+$-1/4$ 来自在两侧进行 Kronecker 型预条件后的综合效果，而不是普通 $2\times2$ Hessian 的直接反演。实际系统通过特征分解、矩阵根与周期更新控制开销。
 
 SOAP 把这套想法接回一阶优化：在 Shampoo 提供的特征基中运行类似 Adam/Adafactor 的更新。可把它理解为“用二阶方法寻找坐标，在好坐标里做一阶优化”。
 
@@ -95,15 +121,15 @@ SOAP 把这套想法接回一阶优化：在 Shampoo 提供的特征基中运行
 
 **熟悉。** Muon 把隐藏层权重保持为矩阵而不是展成长向量。它先累积矩阵动量
 
-\[
+$$
 M_t=\beta M_{t-1}+G_t,
-\]
+$$
 
-再近似求 \(M_t\) 的极分解/正交因子（常记 \(\operatorname{Orth}(M_t)\)），沿更均衡的奇异方向更新：
+再近似求 $M_t$ 的极分解/正交因子（常记 $\operatorname{Orth}(M_t)$），沿更均衡的奇异方向更新：
 
-\[
+$$
 W_{t+1}=W_t-\eta\operatorname{Orth}(M_t).
-\]
+$$
 
 正交化避免少数大奇异值主导更新，使各方向获得更均衡的步长。完整 SVD 太贵，因此使用 Newton–Schulz 迭代近似正交化；每次迭代为矩阵乘法，能较好利用 GPU。
 
@@ -111,17 +137,17 @@ Muon 通常用于矩阵型隐藏层，embedding、输出层等仍可能沿用 Ad
 
 ## 7. Sophia：曲率对角与逐坐标裁剪
 
-**熟悉。** Sophia 用对角 Hessian 估计 \(h_t\) 与一阶动量，更新可抽象为
+**熟悉。** Sophia 用对角 Hessian 估计 $h_t$ 与一阶动量，更新可抽象为
 
-\[
+$$
 W_{t+1}=W_t-\eta\,
 \operatorname{clip}\!\left(
 \frac{m_t}{\max(\rho h_t,\epsilon)},1\right).
-\]
+$$
 
-其中 \(\rho\) 控制曲率阈值，clip 限定单次坐标更新幅度。Hessian 对角估计可以使用：
+其中 $\rho$ 控制曲率阈值，clip 限定单次坐标更新幅度。Hessian 对角估计可以使用：
 
-- Hutchinson 估计：随机向量 \(u\) 下，用 \(u\odot(Hu)\) 的无偏估计；
+- Hutchinson 估计：随机向量 $u$ 下，用 $u\odot(Hu)$ 的无偏估计；
 - Gauss–Newton–Bartlett（GNB）：在模型分布下，用平方梯度近似 Fisher/对角 Hessian。
 
 Bartlett identity 给出一定协方差意义下“平方得分 ≈ Fisher 信息”的联系；完整推导按讲义了解。Sophia 的重点是便宜曲率与裁剪稳定性，而非构造完整 Hessian。
@@ -130,7 +156,7 @@ Bartlett identity 给出一定协方差意义下“平方得分 ≈ Fisher 信�
 
 | 方法 | 节省或利用什么 | 额外成本 | 关键假设 |
 |---|---|---|---|
-| Adafactor | 把矩阵二阶状态压成行列因子 | 因子统计 | \(V\) 可低秩近似 |
+| Adafactor | 把矩阵二阶状态压成行列因子 | 因子统计 | $V$ 可低秩近似 |
 | Adam-mini | 每块共享二阶尺度 | 参数分组 | Transformer Hessian 近似块对角 |
 | Shampoo | 左右 Kronecker 曲率预条件 | 矩阵根、周期分解 | 参数拥有矩阵结构 |
 | SOAP | 在二阶特征基中做一阶更新 | 基变换与状态 | 稳定特征基有帮助 |
@@ -144,12 +170,26 @@ Bartlett identity 给出一定协方差意义下“平方得分 ≈ Fisher 信�
 - Sophia 的 Bartlett identity 全部推导；期中优先掌握“平方梯度为何可作曲率代理”的直觉。
 - 各论文的具体训练基准数值；它们随模型、token 数和硬件变化。
 
+## 课程对齐说明
+
+官网 Lecture 9 概要列出 **Shampoo、SOAP、Muon、Lite、MuonM**。当前 72 页课件标题和正文能定位到前三种，但未发现 Lite、MuonM 的独立展开章节。这两项应标记为“需结合课堂更新确认”，不能仅凭课件目录判断其考试范围。Adafactor、Adam-mini 和 Sophia 虽出现在课件中，复习时仍应以教师当年明确范围为准。
+
 ## 自测
 
 1. Adam 相比 SGD 多占多少量级的优化器状态？
-2. Adafactor 如何把 \(O(mn)\) 降成 \(O(m+n)\)？代价是什么？
+2. Adafactor 如何把 $O(mn)$ 降成 $O(m+n)$？代价是什么？
 3. Adam-mini 的分组利用了 Transformer 的哪类结构？
 4. FlashAttention 减少 HBM 访问，Muon 减少矩阵动量的方向不平衡，两者分别属于什么层面的优化？
+
+## 资料定位
+
+| 主题 | 原始资料位置 |
+|---|---|
+| Adam 显存与 Adafactor | 课件 PDF p. 2-13 |
+| Adam-mini | 课件 PDF p. 14-27 |
+| 二阶方法、Shampoo、SOAP | 课件 PDF p. 28-46 |
+| Muon | 课件 PDF p. 48-56 |
+| Sophia 与总结 | 课件 PDF p. 58-72 |
 
 下一讲把“压缩优化器状态”和“降低梯度/参数子空间维度”连起来：[[Lecture-10_Subspace-Optimizers]]。
 
