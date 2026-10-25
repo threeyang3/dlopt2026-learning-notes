@@ -178,6 +178,13 @@ Bartlett identity 给出一定协方差意义下“平方得分 ≈ Fisher 信�
 
 官网 Lecture 9 概要列出 **Shampoo、SOAP、Muon、Lite、MuonM**。当前 72 页课件标题和正文能定位到前三种，但未发现 Lite、MuonM 的独立展开章节。这两项应标记为“需结合课堂更新确认”，不能仅凭课件目录判断其考试范围。Adafactor、Adam-mini 和 Sophia 虽出现在课件中，复习时仍应以教师当年明确范围为准。
 
+## 常见误解
+
+- Adafactor 的 $O(m+n)$ 是优化器状态规模，不是把模型参数或前向计算降到该规模。
+- Adam-mini 保留完整一阶动量，只把逐参数二阶尺度改为块级尺度。
+- Shampoo 的矩阵根和 Muon 的正交化都依赖参数具有矩阵结构；把所有权重展平后直接套公式会丢失这层含义。
+- “省内存”不等于“更快”：因子分解、SVD、Newton–Schulz 或 Hessian 估计都有额外计算和实现开销。
+
 ## 自测
 
 1. Adam 相比 SGD 多占多少量级的优化器状态？

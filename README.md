@@ -2,7 +2,7 @@
 
 本目录整理自 [PKU DLOpt 2026 课程主页](https://kunyuan827.github.io/dlopt2026/) 当前 `Materials` 区域。网站共有 14 讲、35 个唯一 PDF，合计 1,179 页。资料来自 DLOpt 2024、DLOpt 2025、DLOpt 2026 以及 LLM 2025 的配套内容，已按本课程当前的 Lecture 归属重新组织。
 
-当前版本完成了数学条件、公式维度、数值格式、课程归属和 Obsidian 公式语法的第一轮体系化审校。修订明细见 [审校修订记录](REVISION_NOTES.md)。
+当前版本完成了两轮体系化审校，重点检查数学条件、公式维度、数值格式、课程归属、Obsidian/GitHub 渲染和关键公式的数值回归。修订明细见 [审校修订记录](REVISION_NOTES.md)。
 
 ## 目录
 
@@ -16,6 +16,7 @@ dlopt2026_learning_pack/
 ├── download_materials.sh        # 可重复运行的下载脚本
 ├── resource_inventory.md        # 每个 PDF 的内容与页数索引
 ├── tools/check_notes.py         # 双链、页内锚点、公式和清单检查
+├── tools/test_math_notes.py     # 关键公式的数值回归测试
 ├── materials/                   # 按 Lecture 重命名并归档的原始 PDF
 │   ├── Lecture-01_Introduction/
 │   └── ...
@@ -23,6 +24,7 @@ dlopt2026_learning_pack/
     ├── README.md
     ├── COURSE_SCOPE.md          # 当年课程范围与跨年资料归属
     ├── REFERENCES.md            # 主要原始论文与项目入口
+    ├── NOTE_STANDARD.md         # 后续笔记的统一编修规范
     ├── Lecture-01_Introduction.md
     └── ...
 ```
@@ -38,7 +40,7 @@ dlopt2026_learning_pack/
 
 ## 学习路径
 
-课程可以分成五个阶段。前一阶段没有掌握就进入后一阶段，容易把“算法名称”误当成理解。
+课程可以分成六个阶段。前一阶段没有掌握就进入后一阶段，容易把“算法名称”误当成理解。
 
 | 阶段 | Lecture | 主线 | 进入下一阶段前应能回答 |
 |---|---|---|---|
@@ -87,6 +89,7 @@ dlopt2026_learning_pack/
 - 笔记中的推导用于串连讲义，符号可能与不同年份原稿略有差异；引用具体结论时以对应 PDF 和笔记顶部的配套文件为准。
 - 下载脚本会在获取后检查 PDF 文件类型，并用 `checksums.sha256` 验证内容没有变化。
 - 在仓库根目录运行 `python3 tools/check_notes.py` 可检查双链、相对链接、公式定界符、课程标签和资料清单。
+- 运行 `python3 tools/test_math_notes.py` 可执行关键公式的纯标准库数值测试，无需安装 NumPy。
 
 ## 版权与使用范围
 

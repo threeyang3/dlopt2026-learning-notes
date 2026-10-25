@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import re
 from pathlib import Path
 
@@ -108,6 +109,19 @@ def main() -> int:
     ]
     if len(checksum_lines) != 35:
         errors.append(f"expected 35 checksum rows, found {len(checksum_lines)}")
+    for entry in checksum_lines:
+        parts = entry.split(maxsplit=1)
+        if len(parts) != 2:
+            errors.append(f"invalid checksum row: {entry}")
+            continue
+        expected, relative_path = parts
+        target = ROOT / relative_path.strip()
+        if not target.is_file():
+            errors.append(f"checksum target missing: {relative_path}")
+            continue
+        actual = hashlib.sha256(target.read_bytes()).hexdigest()
+        if actual != expected:
+            errors.append(f"checksum mismatch: {relative_path}")
 
     if errors:
         print("FAILED")
@@ -115,7 +129,9 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    print("OK: 14 notes, 35 materials, wiki links, relative links, and math delimiters")
+    print(
+        "OK: 14 notes, 35 materials, links, math delimiters, and SHA-256 checksums"
+    )
     return 0
 
 
