@@ -57,4 +57,5 @@
 - 第 12 讲：未缩放 Random-$k$ 的期望改为 $(k/d)x$，加入 $d/k$ 缩放后的无偏公式；DSGD 仅在完全连接且使用均匀全局平均矩阵时于一轮内退化为同步 PSGD。
 - 数值测试新增 Random-$k$ 无偏性、Rademacher Hutchinson 对角线、实际矩阵维度和 DSGD 均匀混合检查。
 - 新增 `.github/workflows/verify.yml`，在 push、pull request 和手动触发时运行结构检查与数值回归。
+- CI 固定使用 `ubuntu-24.04`，并采用 `checkout@v6`、`setup-python@v6`，避免 Node 20 行动作弃用告警和运行镜像漂移。
 
