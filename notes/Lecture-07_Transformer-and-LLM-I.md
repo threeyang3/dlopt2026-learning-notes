@@ -41,6 +41,8 @@ $$
 Q=XW_Q,\qquad K=XW_K,\qquad V=XW_V.
 $$
 
+取 $X\in\mathbb R^{N\times d_{\mathrm{model}}}$， $W_Q,W_K\in\mathbb R^{d_{\mathrm{model}}\times d_k}$、 $W_V\in\mathbb R^{d_{\mathrm{model}}\times d_v}$，则 $Q,K\in\mathbb R^{N\times d_k}$、 $V\in\mathbb R^{N\times d_v}$。
+
 缩放点积 attention 为
 
 $$
@@ -51,7 +53,7 @@ $$
 - $QK^\top$ 每行表示一个 query 对所有 key 的匹配分数。
 - $1/\sqrt{d_k}$ 控制点积随维数增长造成的数值方差。
 - $M$ 可为因果 mask：未来位置设为 $-\infty$，softmax 后权重为 0。
-- softmax 按行归一化，输出每一行是 $V$ 的加权组合。
+- softmax 按行归一化，输出形状为 $N\times d_v$；每行必须至少有一个未屏蔽的 key，整行均为 $-\infty$ 会使普通 softmax 未定义。
 
 单个 self-attention 层的主要计算是 $QK^\top$ 和 softmax 权重乘 $V$，复杂度约为
 
@@ -60,6 +62,8 @@ O(N^2d),
 $$
 
 显式存储 $N\times N$ 注意力矩阵需 $O(N^2)$ 内存。长上下文的主要挑战来自这里，FlashAttention 见 [[Lecture-08_Transformer-and-LLM-II#3. FlashAttention：减少 HBM 访问|第 8 讲]]。
+
+上述复杂度专指 attention 核心并假定 $d_k,d_v$ 同阶为 $d$，不包含输入/输出投影的 $O(Nd_{\mathrm{model}}^2)$ 成本。多头时要计入各头，不能把单头显式矩阵大小当作整个模型显存。
 
 ## 4. 为什么需要多头
 
@@ -87,7 +91,7 @@ $$
 
 ## 5. 位置编码、残差与非线性的必要性
 
-**核心掌握三大原因。**
+**核心掌握四个作用。**
 
 1. **位置编码**：普通双向 self-attention 对 token 排列具有等变性，需要显式位置信号来表达“谁在谁之前”。因果掩码也会限制信息流向，但它只定义允许关注的区域，不能替代位置编码；两者提供的信息不同。可用可学习位置向量、正弦编码或 RoPE 等方法。
 2. **非线性**：在注意力权重固定的条件下，attention 输出对 $V$ 是线性的；完整的 self-attention 因 softmax 和输入投影而是输入 $X$ 的非线性函数。前馈网络与激活函数进一步增加表达能力。
@@ -109,7 +113,7 @@ Encoder 不遮蔽未来，Decoder 用因果 mask；Encoder-Decoder 模型在 dec
 
 ## 7. 计算与表达力的取舍
 
-Attention 能直接连接任意两 token，并行度高，但长度 $N$ 增大时计算和显存按二次增长；RNN 的每步成本线性但串行，远处信息传播困难。FlashAttention、稀疏 attention、线性 attention 都是在“全局精确注意力”和“成本”之间做选择。
+Attention 能直接连接任意两 token，并行度高，但稠密核心计算随长度二次增长，朴素实现还显式存储二次大小矩阵；RNN 则沿时间串行。FlashAttention 保留精确稠密 attention，主要改变 IO/存储；稀疏和线性 attention 才改变连接或计算形式，不能把三者都当成精度与成本的同一种折中。
 
 ## 仅作了解
 
@@ -128,9 +132,10 @@ Attention 能直接连接任意两 token，并行度高，但长度 $N$ 增大�
 
 | 主题 | 原始资料位置 |
 |---|---|
-| Seq2Seq、RNN 瓶颈与 attention | PDF p. 4-33 |
-| Self-attention、位置编码、多头与 Transformer | PDF p. 34-67 |
-| 交叉注意力与二次复杂度 | PDF p. 65-71 |
+| Seq2Seq、RNN 瓶颈、分数与加权和 | PDF 页序 10-13、16、25、29-30 |
+| Self-attention、行 softmax、缩放 | PDF 页序 36-40；本笔记另显式列出矩阵维度与 mask 条件 |
+| 位置、非线性、多头与 Transformer | PDF 页序 45-59、60-65 |
+| 交叉注意力 | PDF 页序 66-67；复杂度为按矩阵乘法维度的补充分析 |
 
 下一讲把这些维度变成参数、FLOPs 和显存公式：[[Lecture-08_Transformer-and-LLM-II]]。
 

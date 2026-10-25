@@ -42,7 +42,7 @@ $$
 2. 从标量损失开始，按逆拓扑顺序传递梯度；
 3. 每步使用局部 Jacobian 的转置作用在上一层梯度上。
 
-若 $z=Wy$，则
+若 $W\in\mathbb R^{m\times n}$、 $y\in\mathbb R^n$、 $z=Wy\in\mathbb R^m$，标量损失的导数采用列梯度，则
 
 $$
 \frac{\partial L}{\partial y}=W^\top\frac{\partial L}{\partial z},
@@ -58,7 +58,7 @@ $$
 J_{\mathrm{softmax}}(s)=\mathrm{Diag}(p)-pp^\top.
 $$
 
-它与分类损失的组合常被化简为 $p-q$。向量的 log-sum-exp 为
+取交叉熵 $L=-\sum_iq_i\log p_i$、 $\sum_iq_i=1$ 时，对 logits 的梯度为 $\nabla_sL=p-q$；不是 softmax 函数自身的 Jacobian 等于 $p-q$。向量的 log-sum-exp 为
 
 $$
 \mathrm{LSE}(s)=\log\sum_i e^{s_i},
@@ -93,7 +93,7 @@ d\mathrm{tr}(X)=\mathrm{tr}(dX),
 d\mathrm{tr}(AX)=\mathrm{tr}(A\,dX),
 $$
 
-其中 $X$ 在第一条中为方阵， $AX$ 在第二条中必须维度相容。若在 Frobenius 内积下已化为 $df=\mathrm{tr}(G^\top dX)$，则 $G$ 是对应梯度；因此 $\nabla_X\mathrm{tr}(X)=I$，而 $\nabla_X\mathrm{tr}(AX)=A^\top$。
+在两条迹公式中， $X$ 或乘积 $AX$ 分别应为方阵， $A$ 为固定矩阵；乘积微分 $d(XY)$ 本身不要求 $X$ 是方阵。若在 Frobenius 内积下已化为 $df=\mathrm{tr}(G^\top dX)$，则 $G$ 是对应梯度；因此 $\nabla_X\mathrm{tr}(X)=I$，而 $\nabla_X\mathrm{tr}(AX)=A^\top$。
 
 矩阵微积分速查：
 
@@ -116,7 +116,7 @@ $$
 - $\infty$-范数： $\|x\|_\infty=\max_i|x_i|$，最大坐标幅度。
 - Frobenius 范数： $\|X\|_F^2=\sum_{ij}X_{ij}^2$，等价于把矩阵展平成向量后的 2-范数。
 
-向量范数需满足非负性、正齐次性与三角不等式。平方欧氏长度不满足正齐次性，所以不是范数。
+向量范数需满足非负且仅在零向量处为零、绝对齐次性 $\|cx\|=|c|\|x\|$ 与三角不等式。平方欧氏长度不满足绝对齐次性，所以不是范数。
 
 矩阵算子范数定义为
 
@@ -152,6 +152,8 @@ $$
 X=U\Sigma V^\top,
 $$
 
+完整形式中 $U\in\mathbb R^{m\times m}$、 $V\in\mathbb R^{n\times n}$ 为正交矩阵， $\Sigma\in\mathbb R^{m\times n}$，奇异值按非增顺序排列。
+
 非零奇异值满足
 
 $$
@@ -164,7 +166,7 @@ $$
 \|X\|_F=\sqrt{\sum_i\sigma_i(X)^2}.
 $$
 
-只保留前 $r$ 个奇异值得到 rank-$r$ 近似。Eckart–Young 定理说明 Frobenius 范数下 SVD 截断是最佳低秩近似：
+只保留前 $r$ 个奇异值得到秩至多为 $r$ 的近似，其中 $0\le r\le\min(m,n)$。Eckart–Young 定理说明 Frobenius 范数下 SVD 截断是最佳低秩近似：
 
 $$
 \|X-X_r\|_F^2=\sum_{i>r}\sigma_i^2.
@@ -189,9 +191,11 @@ $$
 
 | 主题 | 原始资料位置 |
 |---|---|
-| Jacobian、链式法则与 Hessian | `01_jacobian-hessian-chain-rule_notes.pdf`，PDF p. 1-10 |
-| 内积、正定、矩阵函数与矩阵微分 | `02_inner-product-matrix-functions-backprop_notes.pdf`，PDF p. 1-22 |
-| 范数、对偶范数与 SVD | `03_norms-svd_notes.pdf`，PDF p. 1-18 |
+| Jacobian、softmax、LSE、链式法则 | `01` notes PDF 页序 1、3-6；链式法则后续例题见 7-10 |
+| 内积、谱定理、Frobenius 微分和乘积反传 | `02` notes PDF 页序 1-3、15-22；迹梯度表为微分规则的整理 |
+| 范数、算子范数、SVD 与对偶范数 | `03` notes PDF 页序 1-2、6-7、9-14、14-18 |
+
+截断 SVD 的最佳近似式是补充的 Eckart–Young 结论；课件重点推导 SVD、范数和对偶范数，未将该最佳近似证明作为已核实的原稿定理。
 
 基础代数结束后，学习随机变量与期望：[[Lecture-04_Probability-and-Statistics]]。
 

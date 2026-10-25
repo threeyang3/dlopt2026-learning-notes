@@ -6,7 +6,7 @@
 
 本仓库持续开展体系化审校，重点检查数学条件、公式维度、数值格式、课程归属、Obsidian/GitHub 渲染和关键公式的数值回归。修订明细见 [审校修订记录](REVISION_NOTES.md)。
 
-第 5、6、9、10、11、12 讲的关键公式与原始课件页码、版本差异和实际核查边界见 [原始资料对照核查](SOURCE_AUDIT.md)。
+全部 14 讲的累计数学审查状态、原始课件页码与版本差异见 [原始资料对照核查](SOURCE_AUDIT.md)；各讲实际阅读器检查另见 [渲染验收记录](RENDER_AUDIT.md)。两者均明确记录未完成项。
 
 ## 目录
 
@@ -15,6 +15,7 @@ dlopt2026_learning_pack/
 ├── README.md                    # 课程总览与学习路线
 ├── REVISION_NOTES.md            # 本轮审校与修正记录
 ├── SOURCE_AUDIT.md              # 关键公式的原始课件对照与核查边界
+├── RENDER_AUDIT.md              # 按讲次的阅读器与导航验收
 ├── course_page.html             # 课程主页快照
 ├── source_manifest.tsv          # 原链接、原文件名、角色与规范文件名
 ├── checksums.sha256             # 35 份 PDF 的 SHA-256 校验和

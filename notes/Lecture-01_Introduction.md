@@ -22,7 +22,7 @@ $$
 p_c=\frac{e^{s_c}}{\sum_{j=1}^{C}e^{s_j}}.
 $$
 
-真实标签使用 one-hot 向量 $q$，交叉熵为
+这里 $h,w_c\in\mathbb R^d$、 $b_c\in\mathbb R$，分数和概率各为 $C$ 维向量。真实标签使用 one-hot 向量 $q$，交叉熵为
 
 $$
 \ell(p,q)=-\sum_{c=1}^{C}q_c\log p_c.
@@ -35,6 +35,8 @@ $$
 $$
 
 学习得到。注意这里同时出现了“数据平均”和“非线性模型”两层结构，后面分别演化为 mini-batch 和深度网络。
+
+本节的特征向量 $h$ 与模型函数 $h(x;a_i)$ 沿用不同段落的常见记号，角色不同； $x$ 表示待训练参数， $a_i,b_i$ 表示样本及标签。有限 logits 经 softmax 后概率为正，交叉熵可化为真实类别的 $-\log p_c$。
 
 常见的 DNN 结构是
 
@@ -112,9 +114,9 @@ $$
 
 | 主题 | 原始资料位置 |
 |---|---|
-| 分类器、交叉熵、DNN 训练目标 | 深度学习 slides，PDF p. 7-22 |
-| LLM 参数、预训练、SFT、奖励模型与 RL | LLM slides，PDF p. 4-46 |
-| Prompt、RAG、工具调用与 LoRA | LLM slides，PDF p. 47-64 |
+| 分类分数、softmax、交叉熵、训练目标 | `01` 深度学习 slides PDF 页序 9-13、16-18 |
+| LLM 参数与四阶段 RLHF 配方 | `02` LLM slides PDF 页序 4-6、12、29-44（历史教学配方，不代表所有模型） |
+| Prompt、RAG、工具调用与 LoRA | `02` PDF 页序 50-63；方法选择为学习建议，不是性能保证 |
 
 ## 自测
 

@@ -36,6 +36,8 @@ $$
 
 后续 $12lh^2$ 的 Transformer 主体估算不变；引用“约 $12lh^2$”时通常忽略词表项。
 
+这是标准多头 attention 加两层宽度 $4h$ FFN 的近似账本；GQA/MQA、门控 FFN、不同中间宽度及 embedding 共享会改变常数。课件虽用 LLaMA 作数值比较，也不能据此将 $12lh^2$ 当成所有 LLaMA 架构的精确结构公式。
+
 层归一化的 $2h$ 参数相对很小，但在逐层显存方程中不能假装完全不存在。
 
 ## 2. FLOPs
@@ -47,7 +49,7 @@ $$
 - 每层 FFN：约 $16sh^2$。
 - 因而每层前向约 $24sh^2+4s^2h$；长序列时 $4s^2h$ 才会显著成为主项。
 
-对全模型，前向主项可近似 $2Ps$（prefill 整段）或每 token $2P$ 的口径；反向传播约为前向的 2 倍，所以前向加反向共约 3 倍前向，训练常用
+在主体矩阵乘占主项时，全模型前向可近似为每序列 $2Ps$、每批 $2Pbs$，或每 token $2P$；当词表项占比明显时，输入查表与共享权重的计数会影响该近似。反向传播约为前向的 2 倍，所以前向加反向共约 3 倍前向，训练常用
 
 $$
 \text{training FLOPs}\approx6PD,
@@ -78,7 +80,7 @@ $$
 
 输出也按指数权重重新缩放并累加。这样无需先看到整行就得到数值稳定的 softmax。
 
-**重要边界：** FlashAttention 仍是精确 attention，而不是近似稀疏 attention；它减少中间矩阵的存储和 HBM 读写。因为不能读取完整矩阵，反向传播通常需要重算部分中间量。粗略 HBM 访问量可从 $O(N^2)$ 降到 $O(N^2d^2/M)$ 量级， $M$ 是片上存储规模。
+**重要边界：** FlashAttention 保留数学上的精确稠密 attention，有限精度和运算顺序仍可产生数值差异。它避免在 HBM 中存储完整 attention 中间矩阵，反向时重算部分中间量。在原论文的两级存储模型中，单头宽度为 $d$、 SRAM 容量 $M$ 按可存储的元素数计，且 $d\le M\le Nd$ 时，HBM 读写量从标准实现的 $\Theta(Nd+N^2)$ 改为 $\Theta(N^2d^2/M)$；不能将该界无条件用于任意 $M$、字节单位或所有硬件执行时间。见 [FlashAttention 原论文第 3.2 节](https://arxiv.org/abs/2205.14135)。
 
 ## 4. 训练显存五分量
 
@@ -98,10 +100,12 @@ $$
 | BF16 模型参数 | 2 | 14 GB |
 | BF16 梯度 | 2 | 14 GB |
 | Adam 一阶、二阶状态（各 2 bytes） | 4 | 28 GB |
-| 激活 | 依赖 batch/序列/模型 | 课件示例约 2 GB |
+| 激活 | 依赖 batch/序列/模型 | 沿用内存高效优化器课件的特定设置约 2 GB |
 | 合计（不含额外主权重和临时缓冲区） | 8 + 激活 | 约 58 GB |
 
 这里 28GB 明确对应“两个 16-bit 状态”。若两个状态都存成 FP32，则需约 $8P$ 字节，即 7B 参数约 56GB（十进制），不是 28GB。若另存 FP32 主权重、FP32 梯度或通信缓冲，还要继续加项。GPT-3 175B 的模型、梯度和优化器状态合计已达 TB 级。激活为重算、LoRA、子空间和零阶方法提供了节省空间，见 [[Lecture-09_Advanced-Optimizers]]、[[Lecture-10_Subspace-Optimizers]]、[[Lecture-11_Zeroth-Order-Optimizers]]。
+
+上表的 2 GB 激活不是对任意 7B 模型的估计，出处是第 10 讲 `01_golore-rso` PDF 页序 7-8 的特定账本。本讲 `02` memory slides PDF 页序 14 则按朴素保存策略估算激活元素数为 $b\{l(2s^2a+14sh)+2sv+sh\}$；融合算子、重计算和序列/批大小都会改变实际峰值。通信暂存另计，因此这里的四个常驻类别不等于实际总峰值只含四项。
 
 ## 5. 计算、带宽与容量三本账
 
@@ -122,7 +126,7 @@ $$
 ## 自测
 
 1. 用 $l,h,v$ 写 decoder-only 参数的主项估算。
-2. 为什么 attention 长序列时显存和计算都按 $O(N^2)$ 增长？
+2. 为什么稠密 attention 的计算和朴素显式矩阵存储随序列长度二次增长？FlashAttention 改变了其中哪项？
 3. FlashAttention 为什么需要 online softmax？
 4. FlashAttention 是否把精确 attention 变成线性时间？它主要减少了什么？
 
@@ -130,9 +134,9 @@ $$
 
 | 主题 | 原始资料位置 |
 |---|---|
-| 参数量与 LLaMA 示例 | parameter slides PDF p. 3-24 |
-| 前向、反向 FLOPs | parameter slides PDF p. 26-36 |
-| 训练显存分解与案例 | memory slides PDF p. 2-17 |
-| FlashAttention、online softmax 与 HBM | FlashAttention slides PDF p. 1-39 |
+| 参数量与架构假设 | `01` parameter slides PDF 页序 6-14、16-24 |
+| FLOPs 与输入 embedding 口径区别 | `01` PDF 页序 26-35；原稿第 27 页按 one-hot 稠密乘法计输入 embedding，笔记采用实际查表口径 |
+| 训练显存、激活与例子 | `02` memory slides PDF 页序 4-5、12-17；7B 的 2 GB 激活另见第 10 讲课件 |
+| Online softmax、融合与 HBM | `03` FlashAttention slides PDF 页序 19-24、27-39；IO 适用条件补充自原论文 |
 
 下一步在同一显存框架中审视 Adam、二阶近似和优化器状态：[[Lecture-09_Advanced-Optimizers]]。
