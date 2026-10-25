@@ -36,12 +36,12 @@ $$
 
 **核心掌握。**
 
-- 二次型：$f(x)=\frac12x^\top Ax+b^\top x$ 时，$\nabla f(x)=Ax+b$，$H_f=A$（$A$ 对称）。
-- 最小二乘：$f(x)=\frac12\|Ax-b\|_2^2$ 时，$\nabla f=A^\top(Ax-b)$，$H_f=A^\top A$。
-- log-sum-exp：$\mathrm{LSE}(x)=\log\sum_j e^{x_j}$ 是 max 的光滑近似；其梯度是 softmax。
+- 二次型： $f(x)=\frac12x^\top Ax+b^\top x$ 时， $\nabla f(x)=Ax+b$， $H_f=A$（ $A$ 对称）。
+- 最小二乘： $f(x)=\frac12\|Ax-b\|_2^2$ 时， $\nabla f=A^\top(Ax-b)$， $H_f=A^\top A$。
+- log-sum-exp： $\mathrm{LSE}(x)=\log\sum_j e^{x_j}$ 是 max 的光滑近似；其梯度是 softmax。
 - 复合标量函数通常先求外层导数，再乘内层 Jacobian 或梯度。
 
-Hessian 可以被看作“梯度变化率”。在 [[Lecture-05_Gradient-Descent#2. 凸性、平滑性与曲率|第 5 讲]] 中，$L$ 控制梯度最多变化多快，$\mu$ 控制最弱方向有多弯。
+Hessian 可以被看作“梯度变化率”。在 [[Lecture-05_Gradient-Descent#2. 凸性、平滑性与曲率|第 5 讲]] 中， $L$ 控制梯度最多变化多快， $\mu$ 控制最弱方向有多弯。
 
 ## 3. 线性映射与矩阵表示
 
@@ -65,7 +65,7 @@ $$
 Ap=\lambda p,\qquad p\ne0,
 $$
 
-则 $p$ 是特征向量，$\lambda$ 是对应特征值。几何上，矩阵只在 $p$ 方向做缩放，不改变方向（负特征值视为反向）。特征值由特征方程
+则 $p$ 是特征向量， $\lambda$ 是对应特征值。几何上，矩阵只在 $p$ 方向做缩放，不改变方向（负特征值视为反向）。特征值由特征方程
 
 $$
 \det(\lambda I-A)=0

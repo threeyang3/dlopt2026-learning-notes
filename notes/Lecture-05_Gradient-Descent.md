@@ -81,8 +81,8 @@ $$
 |---|---|---|---|
 | 光滑非凸 | $\gamma=1/L$ | $\min_{k\le K}\|\nabla f(x_k)\|^2=O(1/K)$ | $O(1/\epsilon^2)$ 达到梯度范数 $\epsilon$ |
 | 光滑凸 | $\gamma=1/L$ | $f(x_K)-f^\star=O(LD^2/K)$ | $O(LD^2/\epsilon)$ |
-| $L$-光滑、$\mu$-强凸 | $\gamma=1/L$ | 距离按 $(1-\mu/L)^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
-| $L$-光滑、$\mu$-强凸 | $\gamma=2/(L+\mu)$ | 距离按 $((L-\mu)/(L+\mu))^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
+| $L$-光滑、 $\mu$-强凸 | $\gamma=1/L$ | 距离按 $(1-\mu/L)^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
+| $L$-光滑、 $\mu$-强凸 | $\gamma=2/(L+\mu)$ | 距离按 $((L-\mu)/(L+\mu))^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
 
 这里 $D=\|x_0-x^\star\|$。不要只记“$O(1/K)$”：要标明它约束的是梯度范数平方还是最优间隙；若要求梯度范数本身为 $\epsilon$，非凸复杂度是 $O(1/\epsilon^2)$。
 

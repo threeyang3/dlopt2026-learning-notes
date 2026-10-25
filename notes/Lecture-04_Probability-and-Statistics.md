@@ -14,7 +14,7 @@
 
 1. $P(A)\ge0$；
 2. $P(\Omega)=1$；
-3. 对可数个互斥事件 $A_i$，$P(\cup_iA_i)=\sum_iP(A_i)$。
+3. 对可数个互斥事件 $A_i$， $P(\cup_iA_i)=\sum_iP(A_i)$。
 
 补事件满足 $P(\bar A)=1-P(A)$。两个事件独立当且仅当
 
@@ -44,7 +44,7 @@ $$
 P(B)=\sum_iP(B\mid A_i)P(A_i)
 $$
 
-（$A_i$ 构成样本空间划分）。Bayes 公式：
+（ $A_i$ 构成样本空间划分）。Bayes 公式：
 
 $$
 P(A_i\mid B)
@@ -142,7 +142,7 @@ $\rho=0$ 表示不线性相关，不表示独立。讲义中的反例 $Y=X^2$ �
 
 ## 7. 接到后续课程
 
-- 随机梯度 $g(x;\xi)$ 是随机变量，$\mathbb E[g(x;\xi)\mid x]=\nabla f(x)$ 是核心无偏假设，见 [[Lecture-06_Stochastic-Gradient-Descent#2. 随机问题与无偏梯度|SGD]]。
+- 随机梯度 $g(x;\xi)$ 是随机变量， $\mathbb E[g(x;\xi)\mid x]=\nabla f(x)$ 是核心无偏假设，见 [[Lecture-06_Stochastic-Gradient-Descent#2. 随机问题与无偏梯度|SGD]]。
 - 小批量取平均会缩小方差，但不消除固定数据分布带来的偏差。
 - 不同节点数据分布 $D_i$ 不一致时，局部梯度下降会偏向各自的解，形成分布式异质性，见 [[Lecture-12_Distributed-Optimizers#6. 去中心化 SGD|分布式优化]]。
 

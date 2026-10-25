@@ -16,7 +16,7 @@ $$
 [J_f(x)]_{ij}=\frac{\partial f_i(x)}{\partial x_j}.
 $$
 
-若 $z=g(x)$、$y=f(z)$，则局部线性化是
+若 $z=g(x)$、 $y=f(z)$，则局部线性化是
 
 $$
 dy=J_f(z)\,dz=J_f(g(x))J_g(x)\,dx.
@@ -72,12 +72,12 @@ $$
 
 **熟悉，正定性质必须掌握。**
 
-- 标准内积：$\langle x,y\rangle=x^\top y$。
-- 加权内积：$\langle x,y\rangle_M=x^\top My$，其中 $M$ 必须对称正定。
-- 正定：$v^\top Mv>0,\ \forall v\ne0$。
+- 标准内积： $\langle x,y\rangle=x^\top y$。
+- 加权内积： $\langle x,y\rangle_M=x^\top My$，其中 $M$ 必须对称正定。
+- 正定： $v^\top Mv>0,\ \forall v\ne0$。
 - 正交投影：把 $x$ 投到方向 $u$ 上，使残差与 $u$ 正交。
 
-正定矩阵定义了可用的“新距离”，也能构成优化中的局部曲率模型。协方差矩阵、$A^\top A$ 与 Hessian（局部正定时）都常具有正半定或正定结构。
+正定矩阵定义了可用的“新距离”，也能构成优化中的局部曲率模型。协方差矩阵、 $A^\top A$ 与 Hessian（局部正定时）都常具有正半定或正定结构。
 
 ## 4. 矩阵函数与矩阵微积分
 
@@ -93,14 +93,14 @@ d\mathrm{tr}(X)=\mathrm{tr}(dX),
 d\mathrm{tr}(AX)=\mathrm{tr}(A\,dX),
 $$
 
-其中 $X$ 在第一条中为方阵，$AX$ 在第二条中必须维度相容。若在 Frobenius 内积下已化为 $df=\mathrm{tr}(G^\top dX)$，则 $G$ 是对应梯度；因此 $\nabla_X\mathrm{tr}(X)=I$，而 $\nabla_X\mathrm{tr}(AX)=A^\top$。
+其中 $X$ 在第一条中为方阵， $AX$ 在第二条中必须维度相容。若在 Frobenius 内积下已化为 $df=\mathrm{tr}(G^\top dX)$，则 $G$ 是对应梯度；因此 $\nabla_X\mathrm{tr}(X)=I$，而 $\nabla_X\mathrm{tr}(AX)=A^\top$。
 
 矩阵微积分速查：
 
 | 标量函数 | 变量形状 | 微分 | Frobenius 意义下的梯度形状 |
 |---|---|---|---|
-| $\mathrm{tr}(X)$ | $n\times n$ | $\mathrm{tr}(dX)$ | $n\times n$：$I$ |
-| $\mathrm{tr}(AX)$ | $X\colon m\times n$，$A\colon n\times m$ | $\mathrm{tr}(A\,dX)$ | $m\times n$：$A^\top$ |
+| $\mathrm{tr}(X)$ | $n\times n$ | $\mathrm{tr}(dX)$ | $n\times n$： $I$ |
+| $\mathrm{tr}(AX)$ | $X\colon m\times n$， $A\colon n\times m$ | $\mathrm{tr}(A\,dX)$ | $m\times n$： $A^\top$ |
 | $\mathrm{tr}(AXB)$ | 各因子维度相容 | $\mathrm{tr}(BA\,dX)$ | $A^\top B^\top$ |
 
 先核对变量与结果形状，再使用转置公式；不要把微分本身误写成一个梯度。
@@ -111,10 +111,10 @@ $$
 
 **核心掌握常用范数及用途。**
 
-- 1-范数：$\|x\|_1=\sum_i|x_i|$，促进稀疏。
-- 2-范数：$\|x\|_2=\sqrt{x^\top x}$，欧氏长度。
-- $\infty$-范数：$\|x\|_\infty=\max_i|x_i|$，最大坐标幅度。
-- Frobenius 范数：$\|X\|_F^2=\sum_{ij}X_{ij}^2$，等价于把矩阵展平成向量后的 2-范数。
+- 1-范数： $\|x\|_1=\sum_i|x_i|$，促进稀疏。
+- 2-范数： $\|x\|_2=\sqrt{x^\top x}$，欧氏长度。
+- $\infty$-范数： $\|x\|_\infty=\max_i|x_i|$，最大坐标幅度。
+- Frobenius 范数： $\|X\|_F^2=\sum_{ij}X_{ij}^2$，等价于把矩阵展平成向量后的 2-范数。
 
 向量范数需满足非负性、正齐次性与三角不等式。平方欧氏长度不满足正齐次性，所以不是范数。
 

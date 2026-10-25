@@ -45,6 +45,12 @@ def check_math(path: Path, text: str, errors: list[str]) -> None:
         single = line.replace("$$", "")
         if single.count("$") % 2:
             errors.append(f"{path.name}:{line_no}: unbalanced inline $ delimiter")
+        delimiters = list(re.finditer(r"(?<!\\)\$(?!\$)", single))
+        for opening, closing in zip(delimiters[0::2], delimiters[1::2]):
+            if opening.start() and single[opening.start() - 1] in "，。、；：）":
+                errors.append(
+                    f"{path.name}:{line_no}: inline math after CJK punctuation needs a space"
+                )
 
 
 def main() -> int:

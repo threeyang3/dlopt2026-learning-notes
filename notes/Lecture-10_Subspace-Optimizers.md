@@ -17,7 +17,7 @@ x=\bar x+Pz,\qquad
 \min_z f(\bar x+Pz),
 $$
 
-其中 $P\in\mathbb R^{d\times r}$，$P^\top P=I$。对应的投影梯度为
+其中 $P\in\mathbb R^{d\times r}$， $P^\top P=I$。对应的投影梯度为
 
 $$
 \nabla_z f=P^\top\nabla_x f.
