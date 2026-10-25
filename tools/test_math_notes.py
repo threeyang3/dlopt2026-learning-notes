@@ -182,9 +182,9 @@ def test_dsgd_uniform_average() -> None:
         close(value, 3.0)
 
     connected_but_not_uniform = [
-        [0.5, 0.5, 0.0],
-        [0.5, 0.0, 0.5],
-        [0.0, 0.5, 0.5],
+        [0.5, 0.25, 0.25],
+        [0.25, 0.5, 0.25],
+        [0.25, 0.25, 0.5],
     ]
     mixed = [
         sum(connected_but_not_uniform[i][j] * x[j] for j in range(n))
@@ -192,6 +192,108 @@ def test_dsgd_uniform_average() -> None:
     ]
     if all(math.isclose(value, mixed[0]) for value in mixed):
         raise AssertionError("non-uniform mixing should not average in one step")
+
+
+def test_dsgd_full_updates() -> None:
+    def subtract_step(X, G, gamma):
+        return [
+            [x - gamma * g for x, g in zip(xrow, grow)]
+            for xrow, grow in zip(X, G)
+        ]
+
+    # Same initial parameter, different local gradients: mixing only X
+    # must not be mistaken for mixing the whole local update.
+    gamma = 0.1
+    J = [[0.5, 0.5], [0.5, 0.5]]
+    X, G = [[0.0, 0.0]], [[1.0, 3.0]]
+    mix_then_subtract = subtract_step(matmul(X, J), G, gamma)
+    subtract_then_mix = matmul(subtract_step(X, G, gamma), J)
+    for actual, expected in zip(mix_then_subtract[0], [-0.1, -0.3]):
+        close(actual, expected)
+    for actual in subtract_then_mix[0]:
+        close(actual, -0.2)
+    # The network mean agrees here, but individual workers do not.
+    close(sum(mix_then_subtract[0]) / 2, -0.2)
+
+    # d=2, n=3 also catches a transposed mixing convention. Local
+    # quadratics have different curvatures and minimizers.
+    n = 3
+    J = [[1 / n for _ in range(n)] for _ in range(n)]
+    scales = [1.0, 2.0, 3.0]
+    targets = [[-1.0, 0.5, 2.0], [0.2, -0.3, 0.8]]
+    shared = [0.4, -0.7]
+    X = [[value] * n for value in shared]
+    for _ in range(5):
+        G = [
+            [scales[j] * (X[i][j] - targets[i][j]) for j in range(n)]
+            for i in range(len(X))
+        ]
+        psgd_gradient = [
+            sum(scales[j] * (shared[i] - targets[i][j]) for j in range(n)) / n
+            for i in range(len(shared))
+        ]
+        shared = [x - gamma * g for x, g in zip(shared, psgd_gradient)]
+        X = matmul(subtract_step(X, G, gamma), J)
+        for row, expected in zip(X, shared):
+            for actual in row:
+                close(actual, expected)
+
+    # Different evaluation points: even averaging complete updates does
+    # not equal PSGD at their mean. For f(x)=x^3/3, grad f(x)=x^2.
+    J = [[0.5, 0.5], [0.5, 0.5]]
+    X = [[0.0, 2.0]]
+    G = [[x**2 for x in X[0]]]
+    result = matmul(subtract_step(X, G, gamma), J)
+    for actual in result[0]:
+        close(actual, 0.8)
+        assert not math.isclose(actual, 1.0 - gamma * 1.0**2)
+
+
+def test_block_gradient_stepsize_bound() -> None:
+    # Coupled SPD quadratic, two scalar blocks with L_i=(2, 3).
+    # Enumerate every random block path rather than sampling trajectories.
+    def f(x):
+        return 0.5 * (2 * x[0]**2 + 2 * x[0] * x[1] + 3 * x[1]**2)
+
+    def gradient(x):
+        return [2 * x[0] + x[1], x[0] + 3 * x[1]]
+
+    initial = [1.0, -0.4]
+    s, Lmax, K = 2, 3.0, 8
+    delta = f(initial)  # f*=0
+    for gamma in (1 / Lmax, 1 / (2 * Lmax), 1e-6):
+        states = [(initial, 1.0)]
+        expected_norms = []
+        for _ in range(K):
+            next_states = []
+            expected_norm = 0.0
+            for x, probability in states:
+                g = gradient(x)
+                norm_squared = sum(value**2 for value in g)
+                expected_norm += probability * norm_squared
+                conditional_value = 0.0
+                for block in range(s):
+                    updated = x.copy()
+                    updated[block] -= gamma * g[block]
+                    conditional_value += f(updated) / s
+                    next_states.append((updated, probability / s))
+                assert conditional_value <= f(x) - gamma * norm_squared / (2 * s) + 1e-12
+            expected_norms.append(expected_norm)
+            states = next_states
+        average_norm = sum(expected_norms) / K
+        bound = 2 * s * delta / (gamma * K)
+        assert min(expected_norms) <= average_norm + 1e-12
+        assert average_norm <= bound + 1e-12
+        expected_final_value = sum(probability * f(x) for x, probability in states)
+        assert gamma * sum(expected_norms) / (2 * s) <= delta - expected_final_value + 1e-12
+        if gamma == 1 / Lmax:
+            close(bound, 2 * s * Lmax * delta / K)
+
+    # Dropping 1/gamma for an arbitrarily tiny step gives a false bound.
+    # Here s=L=1, f=x^2/2, x0=1, K=10, so 2*s*L*delta/K=0.1.
+    gamma, K = 1e-6, 10
+    norms = [(1 - gamma)**(2 * k) for k in range(K)]
+    assert min(norms) > 1 / K
 
 
 def test_content_regressions() -> None:
@@ -227,6 +329,12 @@ def test_content_regressions() -> None:
     assert "Random-$k$" in l12
     assert r"\frac dk x_i" in l12
     assert r"W=\frac1n\mathbf1\mathbf1^\top" in l12
+    assert r"X_kW-\gamma G_k" in l12
+    assert r"(X_k-\gamma G_k)W" in l12
+    assert r"\mathbb R^{d\times n}" in l12
+    assert "梯度在**混合前的" in l12
+    assert "若所有节点从同一参数开始" in l12
+    assert "没有平均梯度" in l12
 
     l9 = (ROOT / "notes/Lecture-09_Advanced-Optimizers.md").read_text(
         encoding="utf-8"
@@ -239,6 +347,16 @@ def test_content_regressions() -> None:
     )
     assert r"\nabla_{i_k}f(x^k)" in l10
     assert "均匀随机选块的块梯度下降" in l10
+    assert r"0<\gamma\le1/L_{\max}" in l10
+    assert r"\gamma_k=\gamma" in l10
+    assert "**精确块梯度**" in l10
+    assert r"f^\star=\inf_x f(x)>-\infty" in l10
+    assert r"\mathbb E[f(x^{k+1})\mid\mathcal F_k]" in l10
+    assert r"\frac{2s\Delta_0}{\gamma K}" in l10
+    assert r"\gamma=1/L_{\max}" in l10
+    assert r"\frac{2sL_{\max}\Delta_0}{K}" in l10
+    assert r"\min_{0\le k<K}" in l10
+    assert r"\min_{k\le K}" not in l10
 
     l13 = (ROOT / "notes/Lecture-13_Mixed-Precision-Training.md").read_text(
         encoding="utf-8"
@@ -266,6 +384,8 @@ def main() -> None:
         test_hutchinson_rademacher,
         test_projection_dimensions_and_notes,
         test_dsgd_uniform_average,
+        test_dsgd_full_updates,
+        test_block_gradient_stepsize_bound,
         test_content_regressions,
     ]
     for test in tests:

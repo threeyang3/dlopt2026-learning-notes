@@ -107,13 +107,38 @@ $$
 2. **块内是否容易求最小？** LASSO 单坐标有闭式 soft-threshold 更新；
 3. **是否可扩展？** 坐标友好结构使一次更新为 $O(s)$ 或类似低成本，而不是重算整图。
 
-下面的速率对应**均匀随机选块的块梯度下降**，不是任意精确块最小化算法：假设各分量 $L_i$-光滑、 $L_{\max}=\max_iL_i$、 $0<\gamma\le1/L_{\max}$，且 $f$ 有下界。此时有
+下面的速率对应**均匀随机选块的块梯度下降**。设 $f$ 连续可微，变量按互不重叠的欧氏坐标块划分，第 $i$ 块满足块光滑性：固定其他块时， $\nabla_i f$ 关于该块变量是 $L_i$-Lipschitz 的。记 $L_{\max}=\max_iL_i>0$，并假设 $f^\star=\inf_x f(x)>-\infty$。每轮给定历史后，从 $s$ 个块中均匀随机选择一个，使用**精确块梯度**和固定步长 $\gamma_k=\gamma$，其中 $0<\gamma\le1/L_{\max}$。
+
+对选中的块 $i_k$，块下降引理给出
 
 $$
-\min_{k\le K}\mathbb E\|\nabla f(x_k)\|^2=O\left(\frac{sL_{\max}\Delta_0}{K}\right),
+f(x^{k+1})\le f(x^k)
+-\gamma\left(1-\frac{L_{i_k}\gamma}{2}\right)\|\nabla_{i_k}f(x^k)\|^2.
 $$
 
-其中 $\Delta_0=f(x^0)-f^\star$。精确块最小化、坐标最小化或 proximal 方法的收敛需要各自的假设，不能直接套用这条结论。
+因此，给定迭代历史 $\mathcal F_k$ 的条件期望满足
+
+$$
+\mathbb E[f(x^{k+1})\mid\mathcal F_k]
+\le f(x^k)-\frac{\gamma}{2s}\|\nabla f(x^k)\|^2.
+$$
+
+令 $\Delta_0=f(x^0)-f^\star$，对 $k=0,\ldots,K-1$ 求和，其中 $K\ge1$，可得
+
+$$
+\min_{0\le k<K}\mathbb E\|\nabla f(x^k)\|^2
+\le\frac1K\sum_{k=0}^{K-1}\mathbb E\|\nabla f(x^k)\|^2
+\le\frac{2s\Delta_0}{\gamma K}.
+$$
+
+特别选择 $\gamma=1/L_{\max}$ 时，才得到这里常用的主阶结论：
+
+$$
+\min_{0\le k<K}\mathbb E\|\nabla f(x^k)\|^2
+\le\frac{2sL_{\max}\Delta_0}{K}.
+$$
+
+**重点掌握：** 一般固定步长的界含 $1/\gamma$；不能允许步长任意小，又省略这项依赖。这里的随机性来自选块，不含随机梯度噪声。精确块最小化、随机块梯度或 proximal 方法的收敛需要各自的假设，不能直接套用这条结论。下降引理与求和思路可回看 [[Lecture-05_Gradient-Descent]]。
 
 ## 6. 分块/逐层训练 LISA
 
@@ -146,6 +171,7 @@ $$
 2. 为什么基于当前梯度的 SVD 投影在噪声主导时会失效？
 3. 随机坐标下降与随机子空间优化有什么共同点？
 4. LISA 为什么能节省激活，却不保证与全参数训练同样快收敛？
+5. 从条件下降式推导 $2s\Delta_0/(\gamma K)$，并解释为什么只有指定步长后才能写出含 $L_{\max}$ 的界。
 
 ## 资料定位
 
