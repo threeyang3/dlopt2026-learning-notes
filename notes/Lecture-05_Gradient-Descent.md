@@ -36,13 +36,13 @@ $$
 **核心掌握。** $\mu$-强凸通常写成
 
 $$
-f(y)\ge f(x)+\nabla f(x)^\top(y-x)+\frac\mu2\|y-x\|^2.
+f(y)\ge f(x)+\nabla f(x)^\top(y-x)+\frac\mu2\Vert y-x\Vert ^2.
 $$
 
 $L$-光滑对应梯度的 Lipschitz 连续性：
 
 $$
-\|\nabla f(x)-\nabla f(y)\|\le L\|x-y\|.
+\Vert \nabla f(x)-\nabla f(y)\Vert \le L\Vert x-y\Vert .
 $$
 
 当 $f$ 二阶可微时，强凸与光滑分别给出
@@ -72,29 +72,29 @@ SGD、Adam 等后续算法仍然以“寻找好的驻点或足够低的函数值
 $$
 f(x_{k+1})
 \le f(x_k)-\left(\gamma-\frac{L\gamma^2}{2}\right)
-\|\nabla f(x_k)\|^2.
+\Vert \nabla f(x_k)\Vert ^2.
 $$
 
-当 $0<\gamma\le1/L$ 时，右侧每一步下降并在 $1/L$ 附近最优。
+当 $0\lt \gamma\le1/L$ 时，右侧每一步下降并在 $1/L$ 附近最优。
 
 | 情形 | 常用步长 | 可保证的收敛 | 达到误差 $\epsilon$ 的迭代量级 |
 |---|---|---|---|
-| 光滑非凸 | $\gamma=1/L$ | $\min_{0\le k<K}\|\nabla f(x_k)\|^2=O(1/K)$ | $O(1/\epsilon^2)$ 达到梯度范数 $\epsilon$ |
+| 光滑非凸 | $\gamma=1/L$ | $\min_{0\le k\lt K}\Vert \nabla f(x_k)\Vert ^2=O(1/K)$ | $O(1/\epsilon^2)$ 达到梯度范数 $\epsilon$ |
 | 光滑凸 | $\gamma=1/L$ | $f(x_K)-f^\star=O(LD^2/K)$ | $O(LD^2/\epsilon)$ |
 | $L$-光滑、 $\mu$-强凸 | $\gamma=1/L$ | 距离按 $(1-\mu/L)^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
 | $L$-光滑、 $\mu$-强凸 | $\gamma=2/(L+\mu)$ | 距离按 $((L-\mu)/(L+\mu))^K$ 收缩 | $O((L/\mu)\log(1/\epsilon))$ |
 
-这里 $D=\|x_0-x^\star\|$。不要只记“$O(1/K)$”：要标明它约束的是梯度范数平方还是最优间隙；若要求梯度范数本身为 $\epsilon$，非凸复杂度是 $O(1/\epsilon^2)$。
+这里 $D=\Vert x_0-x^\star\Vert $。不要只记“$O(1/K)$”：要标明它约束的是梯度范数平方还是最优间隙；若要求梯度范数本身为 $\epsilon$，非凸复杂度是 $O(1/\epsilon^2)$。
 
 非凸速率的完整表述还需要 $f$ 有下界，即 $f^\star=\inf_x f(x)>-\infty$，并使用定理要求的步长。仅有 $L$-光滑和逐步下降并不足以单独推出统一的 $O(1/K)$ 速率。
 
 对二次函数，距离收缩可直接由
 
 $$
-\|x_{k+1}-x^\star\|_2
+\Vert x_{k+1}-x^\star\Vert _2
 \le
 \max_{\lambda\in[\mu,L]}|1-\gamma\lambda|
-\|x_k-x^\star\|_2
+\Vert x_k-x^\star\Vert _2
 $$
 
 得到。两种步长对应的收缩因子分别为 $1-\mu/L$ 与 $(L-\mu)/(L+\mu)$，不能交叉使用。函数值误差还需要结合强凸或光滑界，不能把所有量都写成同一个 $q^K$。
@@ -136,7 +136,7 @@ $$
 f(x_K)-f^\star=O\left(\frac{LD^2}{K^2}\right),
 $$
 
-这里假定最优点存在， $D=\|x_0-x^\star\|$；例如取 $x_{-1}=x_0$、 $\beta_0=0$，之后 $\beta_k=(k-1)/(k+2)$（ $k\ge1$），这是课件第 22 页在上式索引下的写法。强凸情形则使用固定 $\beta=(\sqrt L-\sqrt\mu)/(\sqrt L+\sqrt\mu)$，函数值间隙满足 $(1-\sqrt{\mu/L})^K$ 型上界。与 GD 相比，凸问题达到函数值误差 $\epsilon$ 的复杂度从 $O(LD^2/\epsilon)$ 降为 $O(\sqrt{LD^2/\epsilon})$。一阶光滑凸优化的下界说明其最坏情形阶数最优；这不意味着任何动量参数都能达到该速率。
+这里假定最优点存在， $D=\Vert x_0-x^\star\Vert $；例如取 $x_{-1}=x_0$、 $\beta_0=0$，之后 $\beta_k=(k-1)/(k+2)$（ $k\ge1$），这是课件第 22 页在上式索引下的写法。强凸情形则使用固定 $\beta=(\sqrt L-\sqrt\mu)/(\sqrt L+\sqrt\mu)$，函数值间隙满足 $(1-\sqrt{\mu/L})^K$ 型上界。与 GD 相比，凸问题达到函数值误差 $\epsilon$ 的复杂度从 $O(LD^2/\epsilon)$ 降为 $O(\sqrt{LD^2/\epsilon})$。一阶光滑凸优化的下界说明其最坏情形阶数最优；这不意味着任何动量参数都能达到该速率。
 
 **直觉。** Nesterov 在外推点计算梯度，配合步长和动量计划控制误差；外推、估计序列等是理解加速的不同视角，不能只凭“前瞻”二字推出 $1/K^2$。
 
@@ -155,7 +155,7 @@ $$
 $$
 \alpha_k^\star
 =\arg\min_{\sum_{i=0}^{m_k}\alpha_{k,i}=1}
-\left\|\sum_{i=0}^{m_k}\alpha_{k,i}r(x_{k-i})\right\|_2^2,
+\left\Vert \sum_{i=0}^{m_k}\alpha_{k,i}r(x_{k-i})\right\Vert _2^2,
 \qquad m_k=\min(m,k).
 $$
 

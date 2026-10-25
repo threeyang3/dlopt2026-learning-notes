@@ -21,7 +21,7 @@ $$
 $$
 \mathbb E[g_k\mid\mathcal F_k]=\nabla F(x_k),
 \qquad
-\mathbb E[\|g_k-\nabla F(x_k)\|^2\mid\mathcal F_k]
+\mathbb E[\Vert g_k-\nabla F(x_k)\Vert ^2\mid\mathcal F_k]
 \le\sigma^2.
 $$
 
@@ -49,15 +49,15 @@ mini-batch 取 $B$ 个样本平均，方差从 $\sigma^2$ 降到约 $\sigma^2/B$
 
 **核心掌握固定步长的噪声底与有限步长计划的区别。** 下列速率都要求前述条件无偏和有界方差，以及相应的目标假设。非凸情形还需 $F^\star=\inf_xF(x)>-\infty$；凸情形假设存在最优点且初始距离有限。
 
-- 光滑非凸：固定步长 $0<\gamma\le1/L$、 $K$ 次更新满足
+**光滑非凸。** 固定步长 $0\lt \gamma\le1/L$、 $K$ 次更新满足
 
-  $$
-  \frac1K\sum_{k=0}^{K-1}\mathbb E\|\nabla F(x_k)\|^2
-  \le\frac{2\Delta_0}{\gamma K}+L\gamma\sigma^2,
-  \qquad\Delta_0=F(x_0)-F^\star.
-  $$
+$$
+\frac1K\sum_{k=0}^{K-1}\mathbb E\Vert \nabla F(x_k)\Vert ^2
+\le\frac{2\Delta_0}{\gamma K}+L\gamma\sigma^2,
+\qquad\Delta_0=F(x_0)-F^\star.
+$$
 
-  给定有限预算 $K$，取 $\gamma=\min\{1/L,c/\sqrt K\}$（ $c>0$ 固定）可得到 $O(1/\sqrt K)$ 主阶。该步长在这一次运行内固定、随预算变化；它与逐步递减的 $\gamma_k$ 不同。一般的逐步递减计划需要另做加权求和分析，不能断言任意递减都给出同一速率。
+给定有限预算 $K$，取 $\gamma=\min\lbrace 1/L,c/\sqrt K\rbrace $（ $c>0$ 固定）可得到 $O(1/\sqrt K)$ 主阶。该步长在这一次运行内固定、随预算变化；它与逐步递减的 $\gamma_k$ 不同。一般的逐步递减计划需要另做加权求和分析，不能断言任意递减都给出同一速率。
 - 光滑凸：合适的预算相关步长下， $\mathbb E[F(\bar x_K)]-F^\star$ 有 $O(1/\sqrt K)$ 主阶， $\bar x_K=K^{-1}\sum_{k=0}^{K-1}x_k$。
 - 光滑强凸：固定步长下通常收敛到由 $\gamma,\sigma^2,\mu$ 共同决定的噪声邻域；适当递减步长可进一步缩小。
 
@@ -67,7 +67,7 @@ mini-batch 取 $B$ 个样本平均，方差从 $\sigma^2$ 降到约 $\sigma^2/B$
 
 | 情形 | 常见输出量 | 典型速率或现象 | 必须同时说明的条件 |
 |---|---|---|---|
-| 非凸 | $\min_{0\le k<K}\mathbb E\|\nabla F(x_k)\|^2$ | $O(1/\sqrt K)$；固定步长另有噪声底 | 条件无偏、有界方差、 $L$-光滑、函数有下界、预算相关步长 |
+| 非凸 | $\min_{0\le k\lt K}\mathbb E\Vert \nabla F(x_k)\Vert ^2$ | $O(1/\sqrt K)$；固定步长另有噪声底 | 条件无偏、有界方差、 $L$-光滑、函数有下界、预算相关步长 |
 | 凸 | 平均迭代的目标间隙 | $O(1/\sqrt K)$ 型主阶 | 无偏、有界方差、凸且光滑、合适步长 |
 | 强凸 | 最优间隙或到最优点的距离 | 固定步长到噪声邻域；递减步长可继续缩小 | $\mu$-强凸、噪声模型、步长计划 |
 
@@ -79,7 +79,7 @@ $$
 x_{k+1}=(1-\gamma\mu)x_k-\gamma\xi_k.
 $$
 
-当 $0<\gamma\mu<2$ 时，稳态参数二阶矩为
+当 $0\lt \gamma\mu\lt 2$ 时，稳态参数二阶矩为
 
 $$
 \lim_{k\to\infty}\mathbb E[x_k^2]
@@ -134,11 +134,11 @@ v_k=\beta v_{k-1}+(1-\beta)g_k\odot g_k,
 x_{k+1}=x_k-\frac{\eta}{\sqrt{v_k}+\epsilon}g_k.
 $$
 
-使用指数滑动平均，避免无衰减地累积全部历史；有界梯度下 $v_k$ 保持有界。它不保证任意无界梯度序列的 $v_k$ 都不发散。 $0\le\beta<1$ 越大，记忆越长。
+使用指数滑动平均，避免无衰减地累积全部历史；有界梯度下 $v_k$ 保持有界。它不保证任意无界梯度序列的 $v_k$ 都不发散。 $0\le\beta\lt 1$ 越大，记忆越长。
 
 ### Adam
 
-为避免首步偏差修正分母为零，本小节从 $k=1$ 开始计数，初始化 $m_0=v_0=0$，在 $x_k$ 处取梯度。平方根、除法和乘法均逐坐标执行， $0\le\beta_1,\beta_2<1$、 $\epsilon>0$。
+为避免首步偏差修正分母为零，本小节从 $k=1$ 开始计数，初始化 $m_0=v_0=0$，在 $x_k$ 处取梯度。平方根、除法和乘法均逐坐标执行， $0\le\beta_1,\beta_2\lt 1$、 $\epsilon>0$。
 
 $$
 m_k=\beta_1m_{k-1}+(1-\beta_1)g_k,

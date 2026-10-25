@@ -350,7 +350,7 @@ def test_content_regressions() -> None:
     )
     assert r"\nabla_{i_k}f(x^k)" in l10
     assert "均匀随机选块的块梯度下降" in l10
-    assert r"0<\gamma\le1/L_{\max}" in l10
+    assert r"0\lt \gamma\le1/L_{\max}" in l10
     assert r"\gamma_k=\gamma" in l10
     assert "**精确块梯度**" in l10
     assert r"f^\star=\inf_x f(x)>-\infty" in l10
@@ -358,7 +358,7 @@ def test_content_regressions() -> None:
     assert r"\frac{2s\Delta_0}{\gamma K}" in l10
     assert r"\gamma=1/L_{\max}" in l10
     assert r"\frac{2sL_{\max}\Delta_0}{K}" in l10
-    assert r"\min_{0\le k<K}" in l10
+    assert r"\min_{0\le k\lt K}" in l10
     assert r"\min_{k\le K}" not in l10
 
     l13 = (ROOT / "notes/Lecture-13_Mixed-Precision-Training.md").read_text(

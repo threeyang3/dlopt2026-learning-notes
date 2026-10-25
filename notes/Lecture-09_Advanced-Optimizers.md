@@ -151,7 +151,7 @@ W_{t+1}=W_t-\eta\,
 \frac{m_t}{\max(\rho h_t,\epsilon)},1\right).
 $$
 
-其中 $\rho>0$ 控制曲率尺度， $\epsilon>0$；max 和除法逐坐标执行， $\mathrm{clip}(z,1)=\min\{1,\max\{-1,z\}\}$ 也逐坐标执行。这里省略权重衰减等工程项。Hessian 对角估计可以使用：
+其中 $\rho>0$ 控制曲率尺度， $\epsilon>0$；max 和除法逐坐标执行， $\mathrm{clip}(z,1)=\min\lbrace 1,\max\lbrace -1,z\rbrace \rbrace $ 也逐坐标执行。这里省略权重衰减等工程项。Hessian 对角估计可以使用：
 
 - Hutchinson 估计：固定 $H$ 时，若随机向量满足 $\mathbb E[uu^\top]=I$，则
 

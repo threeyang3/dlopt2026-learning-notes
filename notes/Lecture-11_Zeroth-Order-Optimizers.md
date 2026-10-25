@@ -48,7 +48,7 @@ $$
 估计梯度。这里要区分两种几何对象：扰动方向 $u$ 来自单位球面，而平滑目标对单位球体内的随机点取平均。令
 
 $$
-B_d=\{v\in\mathbb R^d:\|v\|_2\le1\},
+B_d=\lbrace v\in\mathbb R^d:\Vert v\Vert _2\le1\rbrace ,
 $$
 
 则对应的球体平滑目标为
@@ -80,7 +80,7 @@ $$
 
 ### 线性插值
 
-**熟悉。** 选择一组方向 $\{u_j\}$ 和步长 $\tau$，用
+**熟悉。** 选择一组方向 $\lbrace u_j\rbrace $ 和步长 $\tau$，用
 
 $$
 b_j=\frac{f(x+\tau u_j)-f(x)}{\tau}

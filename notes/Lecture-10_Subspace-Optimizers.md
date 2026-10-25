@@ -107,34 +107,34 @@ $$
 2. **块内是否容易求最小？** LASSO 单坐标有闭式 soft-threshold 更新；
 3. **是否可扩展？** 坐标友好结构使一次块更新成本约为完整更新的 $1/s$，而不是重算整图。课件中的 $s$ 是块数；不能把这一相对成本写成普遍的 $O(s)$ 绝对成本。
 
-下面的速率对应**均匀随机选块的块梯度下降**。设 $f$ 连续可微，变量按互不重叠的欧氏坐标块划分，第 $i$ 块满足块光滑性：固定其他块时， $\nabla_i f$ 关于该块变量是 $L_i$-Lipschitz 的。记 $L_{\max}=\max_iL_i>0$，并假设 $f^\star=\inf_x f(x)>-\infty$。每轮给定历史后，从 $s$ 个块中均匀随机选择一个，使用**精确块梯度**和固定步长 $\gamma_k=\gamma$，其中 $0<\gamma\le1/L_{\max}$。
+下面的速率对应**均匀随机选块的块梯度下降**。设 $f$ 连续可微，变量按互不重叠的欧氏坐标块划分，第 $i$ 块满足块光滑性：固定其他块时， $\nabla_i f$ 关于该块变量是 $L_i$-Lipschitz 的。记 $L_{\max}=\max_iL_i>0$，并假设 $f^\star=\inf_x f(x)>-\infty$。每轮给定历史后，从 $s$ 个块中均匀随机选择一个，使用**精确块梯度**和固定步长 $\gamma_k=\gamma$，其中 $0\lt \gamma\le1/L_{\max}$。
 
 对选中的块 $i_k$，块下降引理给出
 
 $$
 f(x^{k+1})\le f(x^k)
--\gamma\left(1-\frac{L_{i_k}\gamma}{2}\right)\|\nabla_{i_k}f(x^k)\|^2.
+-\gamma\left(1-\frac{L_{i_k}\gamma}{2}\right)\Vert \nabla_{i_k}f(x^k)\Vert ^2.
 $$
 
 因此，给定迭代历史 $\mathcal F_k$ 的条件期望满足
 
 $$
 \mathbb E[f(x^{k+1})\mid\mathcal F_k]
-\le f(x^k)-\frac{\gamma}{2s}\|\nabla f(x^k)\|^2.
+\le f(x^k)-\frac{\gamma}{2s}\Vert \nabla f(x^k)\Vert ^2.
 $$
 
 令 $\Delta_0=f(x^0)-f^\star$，对 $k=0,\ldots,K-1$ 求和，其中 $K\ge1$，可得
 
 $$
-\min_{0\le k<K}\mathbb E\|\nabla f(x^k)\|^2
-\le\frac1K\sum_{k=0}^{K-1}\mathbb E\|\nabla f(x^k)\|^2
+\min_{0\le k\lt K}\mathbb E\Vert \nabla f(x^k)\Vert ^2
+\le\frac1K\sum_{k=0}^{K-1}\mathbb E\Vert \nabla f(x^k)\Vert ^2
 \le\frac{2s\Delta_0}{\gamma K}.
 $$
 
 特别选择 $\gamma=1/L_{\max}$ 时，才得到这里常用的主阶结论：
 
 $$
-\min_{0\le k<K}\mathbb E\|\nabla f(x^k)\|^2
+\min_{0\le k\lt K}\mathbb E\Vert \nabla f(x^k)\Vert ^2
 \le\frac{2sL_{\max}\Delta_0}{K}.
 $$
 

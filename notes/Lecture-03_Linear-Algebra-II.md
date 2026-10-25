@@ -111,35 +111,35 @@ $$
 
 **核心掌握常用范数及用途。**
 
-- 1-范数： $\|x\|_1=\sum_i|x_i|$，促进稀疏。
-- 2-范数： $\|x\|_2=\sqrt{x^\top x}$，欧氏长度。
-- $\infty$-范数： $\|x\|_\infty=\max_i|x_i|$，最大坐标幅度。
-- Frobenius 范数： $\|X\|_F^2=\sum_{ij}X_{ij}^2$，等价于把矩阵展平成向量后的 2-范数。
+- 1-范数： $\Vert x\Vert _1=\sum_i|x_i|$，促进稀疏。
+- 2-范数： $\Vert x\Vert _2=\sqrt{x^\top x}$，欧氏长度。
+- $\infty$-范数： $\Vert x\Vert _\infty=\max_i|x_i|$，最大坐标幅度。
+- Frobenius 范数： $\Vert X\Vert _F^2=\sum_{ij}X_{ij}^2$，等价于把矩阵展平成向量后的 2-范数。
 
-向量范数需满足非负且仅在零向量处为零、绝对齐次性 $\|cx\|=|c|\|x\|$ 与三角不等式。平方欧氏长度不满足绝对齐次性，所以不是范数。
+向量范数需满足非负且仅在零向量处为零、绝对齐次性 $\Vert cx\Vert =|c|\Vert x\Vert $ 与三角不等式。平方欧氏长度不满足绝对齐次性，所以不是范数。
 
 矩阵算子范数定义为
 
 $$
-\|A\|_p=\max_{x\ne0}\frac{\|Ax\|_p}{\|x\|_p}.
+\Vert A\Vert _p=\max_{x\ne0}\frac{\Vert Ax\Vert _p}{\Vert x\Vert _p}.
 $$
 
 常用结论：
 
 $$
-\|A\|_1=\max_j\sum_i|A_{ij}|,
+\Vert A\Vert _1=\max_j\sum_i|A_{ij}|,
 \qquad
-\|A\|_\infty=\max_i\sum_j|A_{ij}|,
+\Vert A\Vert _\infty=\max_i\sum_j|A_{ij}|,
 $$
 
 $$
-\|A\|_2=\sigma_{\max}(A).
+\Vert A\Vert _2=\sigma_{\max}(A).
 $$
 
 对偶范数定义为
 
 $$
-\|y\|_*=\max_{\|x\|\le1}y^\top x.
+\Vert y\Vert _*=\max_{\Vert x\Vert \le1}y^\top x.
 $$
 
 它与低秩、压缩和压缩感知中的凸松弛相关。完整约束优化证明可留到专门课程。
@@ -163,13 +163,13 @@ $$
 矩阵的 2-范数为最大奇异值；Frobenius 范数为奇异值的欧氏长度：
 
 $$
-\|X\|_F=\sqrt{\sum_i\sigma_i(X)^2}.
+\Vert X\Vert _F=\sqrt{\sum_i\sigma_i(X)^2}.
 $$
 
 只保留前 $r$ 个奇异值得到秩至多为 $r$ 的近似，其中 $0\le r\le\min(m,n)$。Eckart–Young 定理说明 Frobenius 范数下 SVD 截断是最佳低秩近似：
 
 $$
-\|X-X_r\|_F^2=\sum_{i>r}\sigma_i^2.
+\Vert X-X_r\Vert _F^2=\sum_{i>r}\sigma_i^2.
 $$
 
 该结论会成为 GaLore 的核心假设：若梯度接近低秩，就在低维子空间保存优化器状态。需要同时记住它的风险——噪声梯度未必低秩，见 [[Lecture-10_Subspace-Optimizers#2. GaLore 与其收敛风险|子空间优化]]。
@@ -178,7 +178,7 @@ $$
 
 - 核范数（奇异值之和）和更一般的 Schatten 范数。
 - SVD 的完整存在性证明、奇异值扰动界。
-- 所有对偶范数公式；先熟记 $\|\cdot\|_1\leftrightarrow\|\cdot\|_\infty$ 与 $\|\cdot\|_2$ 自对偶。
+- 所有对偶范数公式；先熟记 $\Vert \cdot\Vert _1\leftrightarrow\Vert \cdot\Vert _\infty$ 与 $\Vert \cdot\Vert _2$ 自对偶。
 
 ## 自测
 
