@@ -93,19 +93,27 @@ f(x_1^k,\ldots,x_{i_k-1}^k,\xi,x_{i_k+1}^k,\ldots,x_s^k),
 x_j^{k+1}=x_j^k\quad(j\ne i_k).
 $$
 
+这是**精确块最小化**。另有一种更简单、但需要单独分析的更新是**块梯度下降**：
+
+$$
+x_{i_k}^{k+1}=x_{i_k}^k-\gamma_k\nabla_{i_k}f(x^k),
+\qquad
+x_j^{k+1}=x_j^k\quad(j\ne i_k).
+$$
+
 也可做块 proximal 更新。三个关键问题是：
 
 1. **选哪个块？** 循环、shuffle、均匀随机或 Gauss–Southwell（选梯度最大块）。
 2. **块内是否容易求最小？** LASSO 单坐标有闭式 soft-threshold 更新；
 3. **是否可扩展？** 坐标友好结构使一次更新为 $O(s)$ 或类似低成本，而不是重算整图。
 
-在均匀抽样且分量 $L_i$-光滑时，块梯度法可取得
+下面的速率对应**均匀随机选块的块梯度下降**，不是任意精确块最小化算法：假设各分量 $L_i$-光滑、 $L_{\max}=\max_iL_i$、 $0<\gamma\le1/L_{\max}$，且 $f$ 有下界。此时有
 
 $$
-\min_{k\le K}\mathbb E\|\nabla f(x_k)\|^2=O\left(\frac{sL_{\max}\Delta_0}{K}\right)
+\min_{k\le K}\mathbb E\|\nabla f(x_k)\|^2=O\left(\frac{sL_{\max}\Delta_0}{K}\right),
 $$
 
-型收敛保证。坐标法只有在块选择、平滑性和可解性满足时才可靠。
+其中 $\Delta_0=f(x^0)-f^\star$。精确块最小化、坐标最小化或 proximal 方法的收敛需要各自的假设，不能直接套用这条结论。
 
 ## 6. 分块/逐层训练 LISA
 

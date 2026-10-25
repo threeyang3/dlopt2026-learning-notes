@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import math
 import random
+from itertools import combinations, product
 from pathlib import Path
 
 
@@ -99,14 +100,70 @@ def test_mezo_central_difference() -> None:
         close(actual, target, 0.03)
 
 
+def test_random_k_unbiased() -> None:
+    x = [1.0, -2.0, 3.0, 4.0]
+    dimension, keep = len(x), 2
+    subsets = list(combinations(range(dimension), keep))
+    unscaled_average = [0.0] * dimension
+    unbiased_average = [0.0] * dimension
+    for subset in subsets:
+        selected = set(subset)
+        for i in range(dimension):
+            unscaled_average[i] += (x[i] if i in selected else 0.0) / len(subsets)
+            unbiased_average[i] += (
+                dimension / keep * x[i] if i in selected else 0.0
+            ) / len(subsets)
+    for i in range(dimension):
+        close(unscaled_average[i], keep / dimension * x[i])
+        close(unbiased_average[i], x[i])
+
+
+def test_hutchinson_rademacher() -> None:
+    H = [[2.0, 1.0], [1.0, 3.0]]
+    signs = list(product((-1.0, 1.0), repeat=len(H)))
+    outer_mean = [[0.0] * len(H) for _ in H]
+    diagonal_estimate = [0.0] * len(H)
+    for u in signs:
+        for i in range(len(H)):
+            for j in range(len(H)):
+                outer_mean[i][j] += u[i] * u[j] / len(signs)
+            hu = sum(H[i][j] * u[j] for j in range(len(H)))
+            diagonal_estimate[i] += u[i] * hu / len(signs)
+    for i in range(len(H)):
+        for j in range(len(H)):
+            close(outer_mean[i][j], 1.0 if i == j else 0.0)
+        close(diagonal_estimate[i], H[i][i])
+
+
+def matmul(left: list[list[float]], right: list[list[float]]) -> list[list[float]]:
+    if not left or not right or len(left[0]) != len(right):
+        raise ValueError("incompatible matrix dimensions")
+    return [
+        [
+            sum(left[i][k] * right[k][j] for k in range(len(right)))
+            for j in range(len(right[0]))
+        ]
+        for i in range(len(left))
+    ]
+
+
+def transpose(matrix: list[list[float]]) -> list[list[float]]:
+    return [list(column) for column in zip(*matrix)]
+
+
 def test_projection_dimensions_and_notes() -> None:
-    # G is 5x3 and P is 5x2. P^T G is 2x3; P(P^T G) is 5x3.
-    G_shape = (5, 3)
-    P_shape = (5, 2)
-    projected_shape = (P_shape[1], G_shape[1])
-    lifted_shape = (P_shape[0], projected_shape[1])
-    assert projected_shape == (2, 3)
-    assert lifted_shape == G_shape
+    G = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0]]
+    P = [[1.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0]]
+    projected = matmul(transpose(P), G)
+    lifted = matmul(P, projected)
+    assert len(projected) == 2 and len(projected[0]) == 3
+    assert len(lifted) == len(G) and len(lifted[0]) == len(G[0])
+    try:
+        matmul(P, G)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("P G should be dimensionally invalid")
 
     note = (ROOT / "notes/Lecture-10_Subspace-Optimizers.md").read_text(
         encoding="utf-8"
@@ -114,6 +171,27 @@ def test_projection_dimensions_and_notes() -> None:
     assert r"P\tilde G" in note
     if "不能把未经过投影的" not in note:
         raise AssertionError("missing explanation for PG dimension mismatch")
+
+
+def test_dsgd_uniform_average() -> None:
+    x = [0.0, 3.0, 6.0]
+    n = len(x)
+    uniform = [[1 / n for _ in range(n)] for _ in range(n)]
+    averaged = [sum(uniform[i][j] * x[j] for j in range(n)) for i in range(n)]
+    for value in averaged:
+        close(value, 3.0)
+
+    connected_but_not_uniform = [
+        [0.5, 0.5, 0.0],
+        [0.5, 0.0, 0.5],
+        [0.0, 0.5, 0.5],
+    ]
+    mixed = [
+        sum(connected_but_not_uniform[i][j] * x[j] for j in range(n))
+        for i in range(n)
+    ]
+    if all(math.isclose(value, mixed[0]) for value in mixed):
+        raise AssertionError("non-uniform mixing should not average in one step")
 
 
 def test_content_regressions() -> None:
@@ -147,6 +225,20 @@ def test_content_regressions() -> None:
     )
     assert "| 2 | micro-batch 2 | micro-batch 1 |" in l12
     assert "Random-$k$" in l12
+    assert r"\frac dk x_i" in l12
+    assert r"W=\frac1n\mathbf1\mathbf1^\top" in l12
+
+    l9 = (ROOT / "notes/Lecture-09_Advanced-Optimizers.md").read_text(
+        encoding="utf-8"
+    )
+    assert r"\mathbb E[uu^\top]=I" in l9
+    assert "Rademacher" in l9
+
+    l10 = (ROOT / "notes/Lecture-10_Subspace-Optimizers.md").read_text(
+        encoding="utf-8"
+    )
+    assert r"\nabla_{i_k}f(x^k)" in l10
+    assert "均匀随机选块的块梯度下降" in l10
 
     l13 = (ROOT / "notes/Lecture-13_Mixed-Precision-Training.md").read_text(
         encoding="utf-8"
@@ -170,7 +262,10 @@ def main() -> None:
         test_adafactor_example,
         test_sphere_estimator_and_ball_smoothing,
         test_mezo_central_difference,
+        test_random_k_unbiased,
+        test_hutchinson_rademacher,
         test_projection_dimensions_and_notes,
+        test_dsgd_uniform_average,
         test_content_regressions,
     ]
     for test in tests:

@@ -28,3 +28,5 @@ python3 tools/test_math_notes.py
 
 前者负责文件、链接、公式语法、课程标签和 SHA-256；后者负责高风险公式的数值回归。新增公式若影响强凸 GD、SGD 噪声、零阶估计、投影维度等主题，应同时扩展测试。
 
+GitHub Actions 会在 push 和 pull request 时运行同一组命令；合并前应确认 `Verify course notes` 工作流通过。
+

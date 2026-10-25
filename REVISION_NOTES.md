@@ -50,3 +50,11 @@
 - 新增 [学习笔记编修规范](notes/NOTE_STANDARD.md)，记录后续补充内容的统一结构。
 - 第 5、6、9、10、11 讲增加“常见误解”，集中说明条件、维度和术语边界。
 
+## 2026-10-25：第三轮算法条件与 CI
+
+- 第 9 讲：Hutchinson 估计补充 $\mathbb E[uu^\top]=I$，并给出 Rademacher 与高斯随机向量的例子。
+- 第 10 讲：把精确块最小化与块梯度下降分开，为梯度范数收敛率补上算法、光滑性、下界和步长条件。
+- 第 12 讲：未缩放 Random-$k$ 的期望改为 $(k/d)x$，加入 $d/k$ 缩放后的无偏公式；DSGD 仅在完全连接且使用均匀全局平均矩阵时于一轮内退化为同步 PSGD。
+- 数值测试新增 Random-$k$ 无偏性、Rademacher Hutchinson 对角线、实际矩阵维度和 DSGD 均匀混合检查。
+- 新增 `.github/workflows/verify.yml`，在 push、pull request 和手动触发时运行结构检查与数值回归。
+

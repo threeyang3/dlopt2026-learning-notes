@@ -1,5 +1,7 @@
 # 深度学习最优化：DLOpt 2026 学习资料与笔记
 
+[![Verify course notes](https://github.com/threeyang3/dlopt2026-learning-notes/actions/workflows/verify.yml/badge.svg)](https://github.com/threeyang3/dlopt2026-learning-notes/actions/workflows/verify.yml)
+
 本目录整理自 [PKU DLOpt 2026 课程主页](https://kunyuan827.github.io/dlopt2026/) 当前 `Materials` 区域。网站共有 14 讲、35 个唯一 PDF，合计 1,179 页。资料来自 DLOpt 2024、DLOpt 2025、DLOpt 2026 以及 LLM 2025 的配套内容，已按本课程当前的 Lecture 归属重新组织。
 
 当前版本完成了两轮体系化审校，重点检查数学条件、公式维度、数值格式、课程归属、Obsidian/GitHub 渲染和关键公式的数值回归。修订明细见 [审校修订记录](REVISION_NOTES.md)。
@@ -15,6 +17,7 @@ dlopt2026_learning_pack/
 ├── checksums.sha256             # 35 份 PDF 的 SHA-256 校验和
 ├── download_materials.sh        # 可重复运行的下载脚本
 ├── resource_inventory.md        # 每个 PDF 的内容与页数索引
+├── .github/workflows/verify.yml # GitHub Actions 自动验证
 ├── tools/check_notes.py         # 双链、页内锚点、公式和清单检查
 ├── tools/test_math_notes.py     # 关键公式的数值回归测试
 ├── materials/                   # 按 Lecture 重命名并归档的原始 PDF
@@ -90,6 +93,7 @@ dlopt2026_learning_pack/
 - 下载脚本会在获取后检查 PDF 文件类型，并用 `checksums.sha256` 验证内容没有变化。
 - 在仓库根目录运行 `python3 tools/check_notes.py` 可检查双链、相对链接、公式定界符、课程标签和资料清单。
 - 运行 `python3 tools/test_math_notes.py` 可执行关键公式的纯标准库数值测试，无需安装 NumPy。
+- GitHub Actions 会在 push 和 pull request 时自动运行以上两项检查。
 
 ## 版权与使用范围
 

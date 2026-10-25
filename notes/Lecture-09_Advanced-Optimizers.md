@@ -151,7 +151,13 @@ $$
 
 其中 $\rho$ 控制曲率阈值，clip 限定单次坐标更新幅度。Hessian 对角估计可以使用：
 
-- Hutchinson 估计：随机向量 $u$ 下，用 $u\odot(Hu)$ 的无偏估计；
+- Hutchinson 估计：若随机向量满足 $\mathbb E[uu^\top]=I$，则
+
+  $$
+  \mathbb E[u\odot(Hu)]=\mathrm{diag}(H).
+  $$
+
+  独立 Rademacher 向量（各坐标为等概率的 $\pm1$）或标准高斯向量 $u\sim\mathcal N(0,I)$ 都满足该条件；任意随机向量不自动满足；
 - Gauss–Newton–Bartlett（GNB）：在模型分布下，用平方梯度近似 Fisher/对角 Hessian。
 
 Bartlett identity 给出一定协方差意义下“平方得分 ≈ Fisher 信息”的联系；完整推导按讲义了解。Sophia 的重点是便宜曲率与裁剪稳定性，而非构造完整 Hessian。
