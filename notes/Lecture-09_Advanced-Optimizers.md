@@ -47,7 +47,11 @@ $$
 一个 $2\times3$ 的数值检查：若
 
 $$
-G=\begin{bmatrix}1&2&3\\4&5&6\end{bmatrix},
+G=
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6
+\end{bmatrix},
 $$
 
 则 $r=(14/3,77/3)$、$c=(8.5,14.5,22.5)$、行均值 $=91/6$。于是
@@ -125,10 +129,10 @@ $$
 M_t=\beta M_{t-1}+G_t,
 $$
 
-再近似求 $M_t$ 的极分解/正交因子（常记 $\operatorname{Orth}(M_t)$），沿更均衡的奇异方向更新：
+再近似求 $M_t$ 的极分解/正交因子（常记 $\mathrm{Orth}(M_t)$），沿更均衡的奇异方向更新：
 
 $$
-W_{t+1}=W_t-\eta\operatorname{Orth}(M_t).
+W_{t+1}=W_t-\eta\mathrm{Orth}(M_t).
 $$
 
 正交化避免少数大奇异值主导更新，使各方向获得更均衡的步长。完整 SVD 太贵，因此使用 Newton–Schulz 迭代近似正交化；每次迭代为矩阵乘法，能较好利用 GPU。
@@ -141,7 +145,7 @@ Muon 通常用于矩阵型隐藏层，embedding、输出层等仍可能沿用 Ad
 
 $$
 W_{t+1}=W_t-\eta\,
-\operatorname{clip}\!\left(
+\mathrm{clip}\!\left(
 \frac{m_t}{\max(\rho h_t,\epsilon)},1\right).
 $$
 

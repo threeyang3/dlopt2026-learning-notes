@@ -19,7 +19,7 @@
 
 ### 学习与维护结构
 
-- 14 篇笔记统一使用 Obsidian/MathJax 的 `$...$` 和 `$$...$$`。
+- 14 篇笔记统一使用 Obsidian/MathJax 的 `$...$` 和 `$$...$$`；避免 GitHub MathJax 不支持的 `\operatorname`，矩阵改为多行书写。
 - 每篇增加课程定位和“资料定位”页码范围。
 - 新增 [课程范围与资料归属](notes/COURSE_SCOPE.md)。
 - 新增 35 份 PDF 的 SHA-256 清单与自动检查脚本。

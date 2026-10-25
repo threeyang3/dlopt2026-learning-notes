@@ -34,6 +34,8 @@ def headings(path: Path) -> set[str]:
 def check_math(path: Path, text: str, errors: list[str]) -> None:
     if r"\(" in text or r"\)" in text or r"\[" in text or r"\]" in text:
         errors.append(f"{path.name}: contains legacy math delimiters")
+    if r"\operatorname" in text:
+        errors.append(f"{path.name}: uses GitHub-unsupported \\operatorname")
 
     display_count = sum(line.count("$$") for line in text.splitlines())
     if display_count % 2:

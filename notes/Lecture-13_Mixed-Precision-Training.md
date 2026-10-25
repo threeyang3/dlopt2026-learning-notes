@@ -100,7 +100,7 @@ FP8 的有效范围窄，微小梯度会变成 0。常见做法包括动态 loss
 随机舍入（stochastic rounding）按与距离成比例的概率向上或向下取最近可表示值：
 
 $$
-\mathbb E[\operatorname{round}(x)]=x
+\mathbb E[\mathrm{round}(x)]=x
 $$
 
 使量化在期望上无偏。Round-to-nearest-even 在某些数据分布上可能产生系统性偏差。

@@ -23,7 +23,7 @@ Attention 不取代全部结构，而是让解码器在每一步直接读取编�
 **核心掌握。** 给定 decoder 当前查询 $s$ 和 encoder 状态 $h_i$，先算相关性分数，再归一化：
 
 $$
-e_i=\operatorname{score}(s,h_i),\qquad
+e_i=\mathrm{score}(s,h_i),\qquad
 \alpha_i=\frac{\exp(e_i)}{\sum_j\exp(e_j)},
 $$
 
@@ -44,8 +44,8 @@ $$
 缩放点积 attention 为
 
 $$
-\operatorname{Attn}(Q,K,V)
-=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}+M\right)V.
+\mathrm{Attn}(Q,K,V)
+=\mathrm{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}+M\right)V.
 $$
 
 - $QK^\top$ 每行表示一个 query 对所有 key 的匹配分数。
@@ -66,15 +66,15 @@ $$
 **核心掌握结构。** 每个头有自己的 $W_Q^{(i)},W_K^{(i)},W_V^{(i)}$，在不同子空间学习关注模式：
 
 $$
-\operatorname{head}_i
-=\operatorname{Attn}(QW_Q^{(i)},KW_K^{(i)},VW_V^{(i)}),
+\mathrm{head}_i
+=\mathrm{Attn}(QW_Q^{(i)},KW_K^{(i)},VW_V^{(i)}),
 $$
 
 再将头拼接并线性映射：
 
 $$
-\operatorname{MHA}(X)
-=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_a)W_O.
+\mathrm{MHA}(X)
+=\mathrm{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_a)W_O.
 $$
 
 多头不是简单复制；它让模型同时关注词法、句法、指代等不同关系。头数与每头宽度影响参数、FLOPs 与 KV Cache，见 [[Lecture-14_Efficient-Fine-Tuning-and-Inference#3. 自回归推理与 KV Cache]]。
@@ -85,7 +85,7 @@ $$
 
 1. **位置编码**：普通双向 self-attention 对 token 排列具有等变性，需要显式位置信号来表达“谁在谁之前”。因果掩码也会限制信息流向，但它只定义允许关注的区域，不能替代位置编码；两者提供的信息不同。可用可学习位置向量、正弦编码或 RoPE 等方法。
 2. **非线性**：注意力本身在 $V$ 上线性；需要前馈网络与激活函数增加表达能力。
-3. **残差连接**：每层输出写为 $x+\operatorname{Sublayer}(x)$，让信息和梯度有直接通道，深层网络更容易训练。
+3. **残差连接**：每层输出写为 $x+\mathrm{Sublayer}(x)$，让信息和梯度有直接通道，深层网络更容易训练。
 4. **归一化**：LayerNorm 对单个 token 的特征做标准化，稳定激活尺度；Pre-LN/Norm 差异影响深层训练稳定性。
 
 ## 6. Transformer 结构

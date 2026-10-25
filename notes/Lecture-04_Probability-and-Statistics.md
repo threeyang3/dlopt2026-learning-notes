@@ -93,7 +93,7 @@ $$
 $$
 
 $$
-\operatorname{Var}(X)=\mathbb E[X^2]-(\mathbb E[X])^2.
+\mathrm{Var}(X)=\mathbb E[X^2]-(\mathbb E[X])^2.
 $$
 
 线性性不要求独立；方差加法通常要求不相关，独立一定不相关但反向一般不成立。
@@ -116,9 +116,9 @@ $$
 全方差公式：
 
 $$
-\operatorname{Var}(Y)
-=\mathbb E[\operatorname{Var}(Y\mid X)]
-+\operatorname{Var}(\mathbb E[Y\mid X]).
+\mathrm{Var}(Y)
+=\mathbb E[\mathrm{Var}(Y\mid X)]
++\mathrm{Var}(\mathbb E[Y\mid X]).
 $$
 
 全方差公式对随机优化很关键：最终波动既来自当前点附近的噪声，也来自随机轨迹选择的位置。
@@ -128,14 +128,14 @@ $$
 **核心掌握。** 协方差定义为
 
 $$
-\operatorname{Cov}(X,Y)=\mathbb E[(X-\mathbb E X)(Y-\mathbb E Y)].
+\mathrm{Cov}(X,Y)=\mathbb E[(X-\mathbb E X)(Y-\mathbb E Y)].
 $$
 
 相关系数
 
 $$
-\rho=\frac{\operatorname{Cov}(X,Y)}
-{\sqrt{\operatorname{Var}(X)\operatorname{Var}(Y)}}.
+\rho=\frac{\mathrm{Cov}(X,Y)}
+{\sqrt{\mathrm{Var}(X)\mathrm{Var}(Y)}}.
 $$
 
 $\rho=0$ 表示不线性相关，不表示独立。讲义中的反例 $Y=X^2$ 在对称分布下可与 $X$ 不相关，却完全依赖。

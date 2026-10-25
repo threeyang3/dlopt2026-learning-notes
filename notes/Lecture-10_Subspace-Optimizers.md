@@ -33,7 +33,7 @@ $$
 
 $$
 \tilde g=P_r^\top G,\qquad
-W\leftarrow W-\eta P_r\operatorname{Adam}(\tilde g).
+W\leftarrow W-\eta P_r\mathrm{Adam}(\tilde g).
 $$
 
 对只投影左侧的 $m\times n$ 梯度，优化器状态维度约为 $r\times n$，即 $O(rn)$；投影基本身占 $mr$ 个元素，合计 $O(r(m+n))$，仍远小于全矩阵状态 $O(mn)$。为避免每步 SVD，实际用 lazy 更新，周期性地刷新 $P_r$。

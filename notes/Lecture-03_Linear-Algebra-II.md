@@ -55,15 +55,15 @@ $$
 Softmax 的 Jacobian 可写成
 
 $$
-J_{\operatorname{softmax}}(s)=\operatorname{Diag}(p)-pp^\top.
+J_{\mathrm{softmax}}(s)=\mathrm{Diag}(p)-pp^\top.
 $$
 
 它与分类损失的组合常被化简为 $p-q$。向量的 log-sum-exp 为
 
 $$
-\operatorname{LSE}(s)=\log\sum_i e^{s_i},
+\mathrm{LSE}(s)=\log\sum_i e^{s_i},
 \qquad
-\nabla\operatorname{LSE}(s)=\operatorname{softmax}(s).
+\nabla\mathrm{LSE}(s)=\mathrm{softmax}(s).
 $$
 
 这是梯度关系，不是反函数关系；softmax 也不是可逆映射，因为给所有 logits 加同一常数不会改变输出。不要把向量 LSE 的结论无条件推广到矩阵函数。
@@ -88,20 +88,20 @@ d(XY)=(dX)Y+X(dY),
 $$
 
 $$
-d\operatorname{tr}(X)=\operatorname{tr}(dX),
+d\mathrm{tr}(X)=\mathrm{tr}(dX),
 \qquad
-d\operatorname{tr}(AX)=\operatorname{tr}(A\,dX),
+d\mathrm{tr}(AX)=\mathrm{tr}(A\,dX),
 $$
 
-其中 $X$ 在第一条中为方阵，$AX$ 在第二条中必须维度相容。若在 Frobenius 内积下已化为 $df=\operatorname{tr}(G^\top dX)$，则 $G$ 是对应梯度；因此 $\nabla_X\operatorname{tr}(X)=I$，而 $\nabla_X\operatorname{tr}(AX)=A^\top$。
+其中 $X$ 在第一条中为方阵，$AX$ 在第二条中必须维度相容。若在 Frobenius 内积下已化为 $df=\mathrm{tr}(G^\top dX)$，则 $G$ 是对应梯度；因此 $\nabla_X\mathrm{tr}(X)=I$，而 $\nabla_X\mathrm{tr}(AX)=A^\top$。
 
 矩阵微积分速查：
 
 | 标量函数 | 变量形状 | 微分 | Frobenius 意义下的梯度形状 |
 |---|---|---|---|
-| $\operatorname{tr}(X)$ | $n\times n$ | $\operatorname{tr}(dX)$ | $n\times n$：$I$ |
-| $\operatorname{tr}(AX)$ | $X\colon m\times n$，$A\colon n\times m$ | $\operatorname{tr}(A\,dX)$ | $m\times n$：$A^\top$ |
-| $\operatorname{tr}(AXB)$ | 各因子维度相容 | $\operatorname{tr}(BA\,dX)$ | $A^\top B^\top$ |
+| $\mathrm{tr}(X)$ | $n\times n$ | $\mathrm{tr}(dX)$ | $n\times n$：$I$ |
+| $\mathrm{tr}(AX)$ | $X\colon m\times n$，$A\colon n\times m$ | $\mathrm{tr}(A\,dX)$ | $m\times n$：$A^\top$ |
+| $\mathrm{tr}(AXB)$ | 各因子维度相容 | $\mathrm{tr}(BA\,dX)$ | $A^\top B^\top$ |
 
 先核对变量与结果形状，再使用转置公式；不要把微分本身误写成一个梯度。
 
