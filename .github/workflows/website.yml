@@ -1,6 +1,5 @@
 name: Verify interactive learning lab
 on:
-  push:
   pull_request:
   workflow_dispatch:
 permissions:

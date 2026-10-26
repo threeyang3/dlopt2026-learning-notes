@@ -88,7 +88,7 @@ PDF 页码仅收录本轮实际读取的页。原笔记的其他页码仍在阅�
 
 - GitHub Actions 在 2026-10-26 的[部署运行](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40367261435)中报告部署成功；该次部署的提交为 `32f40a42a04fef92683e24e9aad873291d23e6fd`。这证明 Pages 部署任务成功，不等于本轮审查已经完成真实浏览器中的全部线上验收。
 - `.github/workflows/pages.yml` 在 `main` 有新提交时自动运行格式检查、类型检查、单元测试、生产构建、桌面/移动端 E2E 和原课程资料检查；所有构建步骤通过后才发布 `website/dist`。也可以在 Actions 中手动运行 `Deploy learning lab to Pages`。
-- `.github/workflows/website.yml` 在 push、Pull Request 和手动触发时验证网站；PR 验证不会部署，只有合并到 `main` 后才会触发发布工作流。
+- `.github/workflows/website.yml` 在 Pull Request 和手动触发时验证网站；`main` 分支提交由 `pages.yml` 运行完整验证并发布，避免分支 push 与 PR 对同一提交重复运行整套浏览器测试。
 - 仓库 Settings → Pages → Source 应选择 **GitHub Actions**。工作流自动设置仓库子路径 `/<repository-name>/`，Hash 路由不需要服务器端 fallback。
 - 部署日志报告的环境 URL 为 `http://threeyang.top/dlopt2026-learning-notes/`。若该自定义域名应当提供 HTTPS，请在 Settings → Pages 确认 **Enforce HTTPS** 已开启，并验证 DNS 与证书；仓库代码无法代替这项托管设置。当前审查环境无法独立访问该域名，因此线上可用性、HTTPS 重定向和真实手机浏览器表现仍须以实际访问核验。
 - **公开资源边界：** 仓库为 Public，35 份 PDF 仍可直接通过 GitHub 访问。网站资源白名单只控制 `resources/` 端点和构建产物，不是仓库权限或版权控制措施。若课件不允许公开分发，应将资料移出公开仓库或改用合适的私有存储。
