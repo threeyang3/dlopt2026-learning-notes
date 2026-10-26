@@ -224,17 +224,10 @@ export function Curve({
   band?: { low: number; high: number }[];
 }) {
   const transform = (v: number) => (log ? Math.log10(Math.max(v, 1e-16)) : v);
-  const all = series
-    .flatMap((s) =>
-      s.states.slice(0, index + 1).map((x) => transform(x[metric])),
-    )
-    .filter(Number.isFinite);
-  if (band)
-    all.push(
-      ...band
-        .slice(0, index + 1)
-        .flatMap((b) => [transform(b.low), transform(b.high)]),
-    );
+  const all = [
+    ...series.flatMap((s) => s.states.map((x) => transform(x[metric]))),
+    ...(band ?? []).flatMap((b) => [transform(b.low), transform(b.high)]),
+  ].filter(Number.isFinite);
   const lo = Math.min(...all, 0),
     hi = Math.max(...all, lo + 1),
     y = (v: number) => 180 - ((transform(v) - lo) / (hi - lo)) * 155;
@@ -251,6 +244,7 @@ export function Curve({
       viewBox="0 0 600 220"
       role="img"
       aria-label="收敛指标曲线"
+      data-y-domain={`${lo}:${hi}`}
     >
       <path d="M62,20V180H580" fill="none" stroke="var(--muted)" />
       {[0, 1, 2, 3].map((i) => (

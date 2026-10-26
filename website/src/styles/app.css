@@ -843,3 +843,47 @@ html[data-theme="dark"] {
   overflow-wrap: anywhere;
   color: var(--muted);
 }
+
+.note-content :is(h1, h2, h3, h4, h5, h6)[id] {
+  scroll-margin-top: 24px;
+}
+.intro-stages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.intro-stages article {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.intro-stages h2 {
+  margin: 6px 0 10px;
+}
+.intro-stages p {
+  margin: 8px 0;
+}
+.intro-stage-range {
+  color: var(--accent);
+  font-size: 12px;
+}
+.intro-stage-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.intro-stage-links a {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 12px;
+  text-decoration: none;
+}
+@media (max-width: 850px) {
+  .intro-stages {
+    grid-template-columns: 1fr;
+  }
+}
