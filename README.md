@@ -1,6 +1,7 @@
 # 深度学习最优化：DLOpt 2026 学习资料与笔记
 
 [![Verify course notes](https://github.com/threeyang3/dlopt2026-learning-notes/actions/workflows/verify.yml/badge.svg)](https://github.com/threeyang3/dlopt2026-learning-notes/actions/workflows/verify.yml)
+[![Deploy learning lab to Pages](https://github.com/threeyang3/dlopt2026-learning-notes/actions/workflows/pages.yml/badge.svg)](https://github.com/threeyang3/dlopt2026-learning-notes/actions/workflows/pages.yml)
 
 本目录整理自 [PKU DLOpt 2026 课程主页](https://kunyuan827.github.io/dlopt2026/) 当前 `Materials` 区域。网站共有 14 讲、35 个唯一 PDF，合计 1,179 页。资料来自 DLOpt 2024、DLOpt 2025、DLOpt 2026 以及 LLM 2025 的配套内容，已按本课程当前的 Lecture 归属重新组织。
 
@@ -20,7 +21,9 @@ npm ci
 npm run dev
 ```
 
-网站尚未部署。构建、测试、来源边界与 Pages 手动部署说明见 [网站 README](website/README.md)，实际验收与保留项见 [交付报告](website/DELIVERY.md)。`website/src/` 是应用源码，`website/e2e/` 是浏览器测试；依赖与构建产物不进入 notes 目录。
+**在线站点：** [DLOpt 2026 动态学习实验室](http://threeyang.top/dlopt2026-learning-notes/)。首次 GitHub Pages 部署已于 2026-10-26 成功，见[部署记录](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40367261435)。现在 `.github/workflows/pages.yml` 会在 `main` 有新提交时运行完整校验并自动发布；Pull Request 由 `website.yml` 验证，但不会提前发布。构建、测试、来源边界与发布方式见 [网站 README](website/README.md)，交付与验收边界见 [交付报告](website/DELIVERY.md)。`website/src/` 是应用源码，`website/e2e/` 是浏览器测试；依赖与构建产物不进入 notes 目录。
+
+**公开范围提醒：** 本仓库是 Public，已跟踪的 35 份课程 PDF 也可以直接从 GitHub 下载。网站资源白名单只控制网站构建产物，不会让公开仓库中的文件变为私有。请确认课程材料的公开分发权限；如不允许公开，应先调整仓库/资料的存放方式。
 
 ## 目录
 
@@ -36,19 +39,26 @@ dlopt2026_learning_pack/
 ├── checksums.sha256             # 35 份 PDF 的 SHA-256 校验和
 ├── download_materials.sh        # 可重复运行的下载脚本
 ├── resource_inventory.md        # 每个 PDF 的内容与页数索引
-├── .github/workflows/verify.yml # GitHub Actions 自动验证
+├── .github/workflows/           # GitHub Actions 工作流
+│   ├── verify.yml               # 原课程资料检查
+│   ├── website.yml              # 网站 CI 与浏览器测试
+│   └── pages.yml                # main 自动部署
 ├── tools/check_notes.py         # 双链、页内锚点、公式和清单检查
 ├── tools/test_math_notes.py     # 关键公式的数值回归测试
 ├── materials/                   # 按 Lecture 重命名并归档的原始 PDF
 │   ├── Lecture-01_Introduction/
 │   └── ...
-└── notes/                       # 按 Lecture 组织的 Markdown 学习笔记
-    ├── README.md
-    ├── COURSE_SCOPE.md          # 当年课程范围与跨年资料归属
-    ├── REFERENCES.md            # 主要原始论文与项目入口
-    ├── NOTE_STANDARD.md         # 后续笔记的统一编修规范
-    ├── Lecture-01_Introduction.md
-    └── ...
+├── notes/                       # 按 Lecture 组织的 Markdown 学习笔记
+│   ├── README.md
+│   ├── COURSE_SCOPE.md          # 当年课程范围与跨年资料归属
+│   ├── REFERENCES.md            # 主要原始论文与项目入口
+│   ├── NOTE_STANDARD.md         # 后续笔记的统一编修规范
+│   ├── Lecture-01_Introduction.md
+│   └── ...
+└── website/                     # React + TypeScript 动态学习实验室
+    ├── src/                     # 页面、数学引擎与实验
+    ├── e2e/                     # 桌面/移动端浏览器回归
+    └── README.md                # 开发、验证与部署说明
 ```
 
 文件名采用 `讲次内顺序_主题_文档角色.pdf`，例如：

@@ -1,6 +1,9 @@
 name: Deploy learning lab to Pages
-# Deliberate manual deployment: first enable GitHub Actions as Pages source.
+# Publish validated main commits automatically; keep manual reruns available.
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 permissions:
   contents: read
@@ -30,7 +33,7 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - run: npm run e2e
         env:
           E2E_PREVIEW: '1'

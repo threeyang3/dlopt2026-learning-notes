@@ -297,3 +297,49 @@ test("第 14 讲 LoRA 与 LoRA+ 标题 ID 唯一，锚点精确导航", async ({
     .poll(() => plus.evaluate((element) => element.getBoundingClientRect().top))
     .toBeLessThan(300);
 });
+
+test("窄屏导航包含全部实验与资料入口，选中后关闭并支持 Escape", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./#lecture/5");
+
+  await expect(page.getByRole("navigation", { name: "主导航" })).toBeHidden();
+  const openButton = page.getByRole("button", { name: "打开导航菜单" });
+  await expect(openButton).toBeVisible();
+  await expect(openButton).toHaveAttribute("aria-expanded", "false");
+  await openButton.click();
+
+  const menu = page.getByRole("navigation", { name: "移动主导航" });
+  await expect(menu).toBeVisible();
+  for (const href of [
+    "#home",
+    "#intro",
+    "#map",
+    "#sources",
+    "#gd",
+    "#sgd",
+    "#linear",
+    "#subspace",
+    "#zeroth",
+    "#distributed",
+    "#attention",
+    "#flash",
+    "#precision",
+    "#inference",
+    "#resources",
+  ]) {
+    await expect(menu.locator(`a[href="${href}"]`), href).toBeVisible();
+  }
+
+  await menu.locator('a[href="#resources"]').click();
+  await expect(page).toHaveURL(/#resources$/);
+  const closedButton = page.getByRole("button", { name: "打开导航菜单" });
+  await expect(closedButton).toHaveAttribute("aria-expanded", "false");
+
+  await closedButton.click();
+  await menu.locator('a[href="#sources"]').focus();
+  await page.keyboard.press("Escape");
+  await expect(closedButton).toHaveAttribute("aria-expanded", "false");
+  await expect(closedButton).toBeFocused();
+});

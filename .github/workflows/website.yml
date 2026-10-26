@@ -1,6 +1,5 @@
 name: Verify interactive learning lab
 on:
-  push:
   pull_request:
   workflow_dispatch:
 permissions:
@@ -24,7 +23,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - run: npm run e2e
         env:
           E2E_PREVIEW: '1'
