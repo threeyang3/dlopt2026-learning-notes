@@ -28,9 +28,9 @@
 ## 验证结果
 
 - TypeScript 检查通过，生产构建通过，格式检查通过。
-- GitHub Pages 部署工作流的上一份已完成运行（run 40367261435）在生产子路径构建中通过格式检查、TypeScript 检查、33 项 Vitest、26 项桌面/移动端 Playwright E2E、原课程资料检查与部署步骤。
-- 本次新增移动导航回归会随修整分支的 CI 运行；请以 [GitHub Actions 最新运行记录](https://github.com/threeyang3/dlopt2026-learning-notes/actions) 为准，不沿用旧的本地测试数量。
-- 生产子路径 `/dlopt2026-learning-notes/` 已由上述部署工作流构建并测试。GitHub Actions 报告部署成功，但真实线上域名、HTTPS 重定向和浏览器交互仍需独立访问确认。
+- 首次 Pages 部署运行 [#40367261435](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40367261435) 在生产子路径构建中通过格式检查、TypeScript 检查、33 项 Vitest、26 项桌面/移动端 Playwright E2E、原课程资料检查与部署步骤。
+- 本轮修整分支的最新网站 CI 运行 [#40373694916](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40373694916) 已通过：33 项 Vitest、28 项桌面/移动端 Playwright E2E（25.1 秒）、格式检查、TypeScript 检查、生产构建和原课程资料检查全部成功。新增回归覆盖窄屏下的全部实验入口、导航后自动关闭及 Escape 焦点返回。
+- 生产子路径 `/dlopt2026-learning-notes/` 已由首次部署工作流构建并测试；合并本轮修整后，Pages 工作流会再次执行完整验证并自动发布。GitHub Actions 报告部署成功，但真实线上域名、HTTPS 重定向和浏览器交互仍需独立访问确认。
 - 原资料校验通过：14讲、35份PDF、链接、数学定界符、SHA-256；原13组数值/内容回归通过；新增校验器范围测试2项通过。
 - 已查看桌面/手机首页和深色GD截图，修复共同初值标签重叠与深色曲线对比度。
 - 上述结果为本地验收；远端CI以GitHub Actions对应提交的实际运行结果为准。
