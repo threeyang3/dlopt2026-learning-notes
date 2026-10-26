@@ -44,6 +44,7 @@ test("所有实验与 14 讲公式可渲染，无运行错误或横向溢出", a
   page.on("pageerror", (e) => errors.push(e.message));
   for (const route of [
     "home",
+    "intro",
     "gd",
     "sgd",
     "linear",
@@ -206,4 +207,62 @@ test("资源端点拒绝未发布的项目文件", async ({ request }) => {
     "resources/notes/%2e%2e/website/package.json",
   );
   expect(encoded.status()).toBe(404);
+});
+
+
+test("跨讲笔记链接保留章节锚点并滚动到目标标题", async ({ page }) => {
+  await page.goto("./#lecture/2");
+  const link = page
+    .locator('.note-content a[href^="#lecture/5/"]')
+    .filter({ hasText: "第 5 讲" })
+    .first();
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute("href", /^#lecture\/5\/2-/);
+  await link.click();
+  await expect(page).toHaveURL(/#lecture\/5\/2-/);
+
+  const target = page.locator(
+    '.note-content h2[id="2-凸性-平滑性与曲率"]',
+  );
+  await expect(target).toBeVisible();
+  await expect
+    .poll(() => target.evaluate((element) => element.getBoundingClientRect().top))
+    .toBeGreaterThanOrEqual(0);
+  await expect
+    .poll(() => target.evaluate((element) => element.getBoundingClientRect().top))
+    .toBeLessThan(300);
+});
+
+test("收敛曲线播放时纵轴范围和既有点位置保持稳定", async ({ page }) => {
+  await page.goto("./#gd");
+  const scrub = page.getByRole("slider", { name: "迭代位置" });
+  const chart = page.locator("svg.curve").first();
+  const gd = page.getByTestId("curve-GD");
+
+  await scrub.fill("40");
+  const domain = await chart.getAttribute("data-y-domain");
+  const ticks = await chart.locator("text").allTextContents();
+  const prefix = (await gd.getAttribute("points"))!.trim().split(/\s+/);
+
+  await scrub.fill("80");
+  expect(await chart.getAttribute("data-y-domain")).toBe(domain);
+  expect(await chart.locator("text").allTextContents()).toEqual(ticks);
+  const later = (await gd.getAttribute("points"))!.trim().split(/\s+/);
+  expect(later.slice(0, prefix.length)).toEqual(prefix);
+});
+
+test("课程导论展示四阶段，并明确第 1 讲的关联实验", async ({ page }) => {
+  await page.goto("./#intro");
+  await expect(
+    page.getByRole("heading", { name: "从优化问题到高效大模型训练" }),
+  ).toBeVisible();
+  await expect(page.locator(".intro-stages article")).toHaveCount(4);
+  await page.getByRole("link", { name: "从第 1 讲开始" }).click();
+  await expect(page).toHaveURL(/#lecture\/1$/);
+  await expect(
+    page.getByRole("link", { name: "关联实验：Attention" }),
+  ).toHaveAttribute("href", "#attention");
+  await expect(
+    page.getByRole("link", { name: "课程导论与学习路线" }),
+  ).toHaveAttribute("href", "#intro");
 });
