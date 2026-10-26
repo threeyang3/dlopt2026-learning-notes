@@ -8,6 +8,8 @@
 
 全部 14 讲的累计数学审查状态、原始课件页码与版本差异见 [原始资料对照核查](SOURCE_AUDIT.md)；各讲实际阅读器检查另见 [渲染验收记录](RENDER_AUDIT.md)。两者均明确记录未完成项。
 
+此前 10 讲的重点抽查已扩展为笔记正文逐章复核，细目和独立代数依据见 [逐章核查记录](CHAPTER_AUDIT.md)；这不代表全部原始 PDF 或论文实现均已审定。
+
 ## 目录
 
 ```text
@@ -15,6 +17,7 @@ dlopt2026_learning_pack/
 ├── README.md                    # 课程总览与学习路线
 ├── REVISION_NOTES.md            # 本轮审校与修正记录
 ├── SOURCE_AUDIT.md              # 关键公式的原始课件对照与核查边界
+├── CHAPTER_AUDIT.md             # 剩余十讲正文逐章核查与独立依据
 ├── RENDER_AUDIT.md              # 按讲次的阅读器与导航验收
 ├── course_page.html             # 课程主页快照
 ├── source_manifest.tsv          # 原链接、原文件名、角色与规范文件名
