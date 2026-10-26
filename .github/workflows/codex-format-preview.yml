@@ -1,0 +1,40 @@
+name: Temporary formatter preview
+
+on:
+  push:
+    branches:
+      - codex/stabilize-learning-lab-2026-10-26
+    paths:
+      - .github/workflows/codex-format-preview.yml
+
+permissions:
+  contents: read
+
+jobs:
+  format-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+      - name: Apply repository formatter
+        working-directory: website
+        run: |
+          sed -i '/prettier-ignore/d' src/App.tsx src/tests/notes.test.ts e2e/core.spec.ts
+          npm run format
+          npm run format:check
+      - name: Upload formatted stabilization files
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatted-stabilization-files
+          path: |
+            website/src/App.tsx
+            website/e2e/core.spec.ts
+            website/src/tests/notes.test.ts
+          if-no-files-found: error
