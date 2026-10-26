@@ -35,7 +35,8 @@ function useRoute() {
   }, []);
   useEffect(() => {
     const anchor = routeAnchor(route);
-    if (anchor) document.getElementById(anchor)?.scrollIntoView({ block: "start" });
+    if (anchor)
+      document.getElementById(anchor)?.scrollIntoView({ block: "start" });
   }, [route]);
   return route;
 }
@@ -249,9 +250,13 @@ export function App() {
           {route === "precision" && <PrecisionLab />}
           {route === "inference" && <InferenceLab />}
           {route === "resources" && <ResourcesLab />}
-          {!["home", "intro", "map", "sources", ...Object.keys(labNames)].includes(
-            route,
-          ) &&
+          {![
+            "home",
+            "intro",
+            "map",
+            "sources",
+            ...Object.keys(labNames),
+          ].includes(route) &&
             !lecture && (
               <section>
                 <h1>未找到页面</h1>
