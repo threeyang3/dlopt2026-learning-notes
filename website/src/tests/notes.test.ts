@@ -10,7 +10,8 @@ describe("课程笔记章节链接", () => {
 
   it("跨讲链接保留章节锚点而不是只打开讲次", () => {
     const href = resolveNoteHref(
-      "Lecture-05_Gradient-Descent.md#2.%20%E5%87%B8%E6%80%A7%E3%80%81%E5%B9%B3%E6%BB%91%E6%80%A7%E4%B8%8E%E6%9B%B2%E7%8E%87",
+      "Lecture-05_Gradient-Descent.md#" +
+        "2.%20%E5%87%B8%E6%80%A7%E3%80%81%E5%B9%B3%E6%BB%91%E6%80%A7%E4%B8%8E%E6%9B%B2%E7%8E%87",
     );
     expect(href).toMatch(/^#lecture\/5\/2-/);
     expect(decodeURIComponent(href!.split("/").at(-1)!)).toBe(
