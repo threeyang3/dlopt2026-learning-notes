@@ -113,7 +113,8 @@ test("本地原始资源与参考链接可访问", async ({ page, request }) => 
   expect(note.status()).toBe(200);
   expect(await note.text()).toContain("梯度下降");
   const pdf = await request.get(
-    "resources/materials/Lecture-05_Gradient-Descent/01_convexity-gradient-descent_slides.pdf",
+    "resources/materials/Lecture-05_Gradient-Descent/" +
+      "01_convexity-gradient-descent_slides.pdf",
   );
   expect(pdf.status()).toBe(200);
   expect(pdf.headers()["content-type"]).toContain("application/pdf");
@@ -226,7 +227,9 @@ test("跨讲笔记链接保留章节锚点并滚动到目标标题", async ({ pa
   );
   await expect(target).toBeVisible();
   await expect
-    .poll(() => target.evaluate((element) => element.getBoundingClientRect().top))
+    .poll(() =>
+      target.evaluate((element) => element.getBoundingClientRect().top),
+    )
     .toBeGreaterThanOrEqual(0);
   await expect
     .poll(() => target.evaluate((element) => element.getBoundingClientRect().top))
