@@ -34,15 +34,15 @@ export function headingSlug(value: string) {
       .trim()
       .toLowerCase()
       .replace(/[`*_~]/g, "")
-      .replace(/[^\\p{L}\\p{N}]+/gu, "-")
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
       .replace(/^-+|-+$/g, "") || "section"
   );
 }
 
 function headingTitle(value: string) {
   return value
-    .replace(/\\[([^\\]]+)\\]\\([^)]+\\)/g, "$1")
-    .replace(/[ \\t]+#+[ \\t]*$/, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[ \t]+#+[ \t]*$/, "")
     .replace(/[`*_~]/g, "")
     .trim();
 }
@@ -54,7 +54,7 @@ export function buildHeadingIndex(markdown: string): NoteHeading[] {
   const used = new Set<string>();
   const nextSuffix = new Map<string, number>();
   let fence: { marker: string; length: number } | undefined;
-  markdown.split(/\\r?\\n/).forEach((line, index) => {
+  markdown.split(/\r?\n/).forEach((line, index) => {
     const boundary = /^ {0,3}(`{3,}|~{3,})/.exec(line);
     if (boundary) {
       const marker = boundary[1][0];
@@ -64,7 +64,7 @@ export function buildHeadingIndex(markdown: string): NoteHeading[] {
       return;
     }
     if (fence) return;
-    const match = /^ {0,3}#{1,6}[ \\t]+(.+?)[ \\t]*$/.exec(line);
+    const match = /^ {0,3}#{1,6}[ \t]+(.+?)[ \t]*$/.exec(line);
     if (!match) return;
     const title = headingTitle(match[1]);
     const base = headingSlug(title);
@@ -129,7 +129,7 @@ function headingRenderer(tag: HeadingTag, byLine: Map<number, string>) {
 export function Notes({ id }: { id: number }) {
   const lecture = course.find((l) => l.id === id)!;
   const text = noteText(lecture.slug).replace(
-    /\\[\\[([^\\]|#]+)(?:#([^\\]|]+))?(?:\\|([^\\]]+))?\\]\\]/g,
+    /\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g,
     (_, name, anchor, label) => {
       const other = course.find((l) => l.slug === name);
       const target = other
@@ -167,7 +167,7 @@ export function Notes({ id }: { id: number }) {
 
 export function resolveNoteHref(href?: string, currentLectureId?: number) {
   if (!href) return undefined;
-  if (/^(https?:|mailto:|#lecture\\/)/.test(href)) return href;
+  if (/^(https?:|mailto:|#lecture\/)/.test(href)) return href;
 
   const hashIndex = href.indexOf("#");
   const clean = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
