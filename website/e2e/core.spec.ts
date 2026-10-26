@@ -268,3 +268,41 @@ test("课程导论展示四阶段，并明确第 1 讲的关联实验", async ({
     page.getByRole("link", { name: "课程导论与学习路线" }),
   ).toHaveAttribute("href", "#intro");
 });
+
+
+test("第 14 讲 LoRA 与 LoRA+ 标题 ID 唯一，锚点精确导航", async ({
+  page,
+}) => {
+  await page.goto("./#lecture/14");
+  const original = page.locator('.note-content h3[id="lora"]');
+  const plus = page.locator('.note-content h3[id="lora-2"]');
+  await expect(original).toHaveText("LoRA");
+  await expect(plus).toHaveText("LoRA+");
+  expect(
+    await page.locator(".note-content [id]").evaluateAll((nodes) => {
+      const ids = nodes.map((node) => node.id);
+      return new Set(ids).size === ids.length;
+    }),
+  ).toBe(true);
+
+  await page.goto("./#lecture/14/lora-2");
+  await expect(plus).toBeVisible();
+  await expect
+    .poll(() =>
+      plus.evaluate((element) => element.getBoundingClientRect().top),
+    )
+    .toBeGreaterThanOrEqual(0);
+  await expect
+    .poll(() =>
+      plus.evaluate((element) => element.getBoundingClientRect().top),
+    )
+    .toBeLessThan(300);
+
+  await page.reload();
+  await expect(plus).toBeVisible();
+  await expect
+    .poll(() =>
+      plus.evaluate((element) => element.getBoundingClientRect().top),
+    )
+    .toBeLessThan(300);
+});
