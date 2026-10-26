@@ -210,8 +210,6 @@ test("资源端点拒绝未发布的项目文件", async ({ request }) => {
   expect(encoded.status()).toBe(404);
 });
 
-
-// prettier-ignore
 test("跨讲笔记链接保留章节锚点并滚动到目标标题", async ({ page }) => {
   await page.goto("./#lecture/2");
   const link = page
@@ -223,9 +221,7 @@ test("跨讲笔记链接保留章节锚点并滚动到目标标题", async ({ pa
   await link.click();
   await expect(page).toHaveURL(/#lecture\/5\/2-/);
 
-  const target = page.locator(
-    '.note-content h2[id="2-凸性-平滑性与曲率"]',
-  );
+  const target = page.locator('.note-content h2[id="2-凸性-平滑性与曲率"]');
   await expect(target).toBeVisible();
   await expect
     .poll(() =>
@@ -239,7 +235,6 @@ test("跨讲笔记链接保留章节锚点并滚动到目标标题", async ({ pa
     .toBeLessThan(300);
 });
 
-// prettier-ignore
 test("收敛曲线播放时纵轴范围和既有点位置保持稳定", async ({ page }) => {
   await page.goto("./#gd");
   const scrub = page.getByRole("slider", { name: "迭代位置" });
@@ -258,7 +253,6 @@ test("收敛曲线播放时纵轴范围和既有点位置保持稳定", async ({
   expect(later.slice(0, prefix.length)).toEqual(prefix);
 });
 
-// prettier-ignore
 test("课程导论展示四阶段，并明确第 1 讲的关联实验", async ({ page }) => {
   await page.goto("./#intro");
   await expect(

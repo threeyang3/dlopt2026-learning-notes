@@ -70,7 +70,6 @@ export function App() {
   const lecture = route.startsWith("lecture/")
     ? course.find((l) => l.id === +route.split("/")[1])
     : undefined;
-  // prettier-ignore
   return (
     <>
       <a
@@ -288,8 +287,7 @@ function CourseIntroduction() {
       title: "理解优化算法如何更新参数",
       range: "第 5–6 讲",
       ids: [5, 6],
-      summary:
-        "比较 GD、动量与加速，再理解随机梯度、批大小、噪声和 Adam。",
+      summary: "比较 GD、动量与加速，再理解随机梯度、批大小、噪声和 Adam。",
     },
     {
       title: "拆开 Transformer 的计算过程",
@@ -313,7 +311,8 @@ function CourseIntroduction() {
         <p>课程导论</p>
         <h1>从优化问题到高效大模型训练</h1>
         <p>
-          这 14 讲不是互不相关的主题清单，而是一条从数学基础、优化算法到模型计算与系统成本的学习主线。
+          这 14
+          讲不是互不相关的主题清单，而是一条从数学基础、优化算法到模型计算与系统成本的学习主线。
         </p>
       </div>
       <section className="home-path">
@@ -375,10 +374,13 @@ function CourseIntroduction() {
       <section className="notice">
         <strong>笔记与动态实验的关系</strong>
         <p>
-          原始 Markdown 是课程知识底座；动态实验只对部分核心机制建立可运行的教学模型，不代表整讲内容或真实 GPU / 大模型实现都已复现。
+          原始 Markdown
+          是课程知识底座；动态实验只对部分核心机制建立可运行的教学模型，不代表整讲内容或真实
+          GPU / 大模型实现都已复现。
         </p>
         <p>
-          第 1 讲关联的 Attention 实验用于演示模型计算流程，不是第 1 讲的完整实验，也不包含完整 Transformer 的所有组件。
+          第 1 讲关联的 Attention 实验用于演示模型计算流程，不是第 1
+          讲的完整实验，也不包含完整 Transformer 的所有组件。
         </p>
       </section>
     </>
