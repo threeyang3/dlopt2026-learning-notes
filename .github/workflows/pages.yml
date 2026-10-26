@@ -1,6 +1,9 @@
 name: Deploy learning lab to Pages
-# Deliberate manual deployment: first enable GitHub Actions as Pages source.
+# Publish validated main commits automatically; keep manual reruns available.
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 permissions:
   contents: read

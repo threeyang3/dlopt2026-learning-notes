@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { course, labNames, resource } from "./content/course";
 import { Sources } from "./components/Sources";
 import { GradientLab } from "./labs/GradientLab";
@@ -51,13 +51,18 @@ function stored<T>(key: string, fallback: T): T {
 export function App() {
   const route = useRoute(),
     [theme, setTheme] = useState(() => stored("dlopt-theme", "light")),
-    [done, setDone] = useState<number[]>(() => stored("dlopt-progress", []));
+    [done, setDone] = useState<number[]>(() => stored("dlopt-progress", [])),
+    [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuToggleRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
       localStorage.setItem("dlopt-theme", JSON.stringify(theme));
     } catch {}
   }, [theme]);
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [route]);
   function toggle(id: number) {
     const next = done.includes(id)
       ? done.filter((x) => x !== id)
@@ -104,6 +109,72 @@ export function App() {
           </a>
           <a href="#sources">资料与核验</a>
         </nav>
+        <button
+          className="mobile-menu-toggle"
+          ref={mobileMenuToggleRef}
+          aria-label={mobileMenuOpen ? "关闭导航菜单" : "打开导航菜单"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+        >
+          {mobileMenuOpen ? "关闭菜单" : "菜单"}
+        </button>
+        <div
+          id="mobile-navigation"
+          className="mobile-navigation"
+          hidden={!mobileMenuOpen}
+        >
+          <nav
+            aria-label="移动主导航"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                setMobileMenuOpen(false);
+                mobileMenuToggleRef.current?.focus();
+              }
+            }}
+          >
+            <span className="mobile-menu-label">页面</span>
+            <a
+              aria-current={route === "home" ? "page" : undefined}
+              href="#home"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              实验首页
+            </a>
+            <a
+              aria-current={route === "intro" ? "page" : undefined}
+              href="#intro"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              课程导论
+            </a>
+            <a
+              aria-current={route === "map" ? "page" : undefined}
+              href="#map"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              课程地图
+            </a>
+            <a
+              aria-current={route === "sources" ? "page" : undefined}
+              href="#sources"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              资料与核验
+            </a>
+            <span className="mobile-menu-label">动态实验</span>
+            {Object.entries(labNames).map(([key, name]) => (
+              <a
+                aria-current={route === key ? "page" : undefined}
+                key={key}
+                href={"#" + key}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {name}
+              </a>
+            ))}
+          </nav>
+        </div>
         <button
           aria-label="切换主题"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}

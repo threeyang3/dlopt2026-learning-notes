@@ -49,7 +49,7 @@ python3 website/scripts/index-course.py
 - `src/components/`：离散播放与历史回退、参数控制、轨迹/曲线、矩阵、KaTeX、推导、自测、原笔记阅读与来源。
 - `src/tests/`：手算参考、数值验证与源资料一致性；`e2e/`：桌面/移动端浏览器检查。
 
-页面使用 hash 路由，适合静态目录部署与直接刷新；主题与自报学习进度存于 localStorage。若存储被禁用仍可使用。算法轨迹按离散步预计算，播放定时器只改变查看位置。减少动态效果设置下放慢播放，并停用装饰动画；不自动播放。
+页面使用 hash 路由，适合静态目录部署与直接刷新；主题与自报学习进度存于 localStorage。若存储被禁用仍可使用。桌面端提供顶部导航和实验侧栏，窄屏改用可键盘操作的完整移动导航，覆盖课程导论、课程地图、资料核验及所有实验入口；选择页面后菜单自动关闭，Escape 可关闭并将焦点返回菜单按钮。算法轨迹按离散步预计算，播放定时器只改变查看位置。减少动态效果设置下放慢播放，并停用装饰动画；不自动播放。
 
 ## 已实现实验
 
@@ -82,16 +82,17 @@ PDF 页码仅收录本轮实际读取的页。原笔记的其他页码仍在阅�
 5. 将入口注册到 `content/course.ts` 的 labNames 和 App 路由。需要推导时复用 Derivation，题目复用 Quiz。
 6. 扩展 `e2e/` 的页面与参数测试，运行新旧所有校验。
 
-## 部署
+## 部署与发布
 
-网站源码随仓库版本管理；尚未部署。远端 CI 状态以 GitHub Actions 对应提交的结果为准，不能将工作流文件存在视作检查或部署成功。
+**在线站点：** [DLOpt 2026 动态学习实验室](http://threeyang.top/dlopt2026-learning-notes/)。
 
-- 验证：`.github/workflows/website.yml` 在 push/PR/manual 运行类型检查、数值测试、构建、桌面/移动 E2E 和原有资料检查；原 `verify.yml` 保留。
-- Pages：仓库 Settings → Pages → Source 选择 GitHub Actions，推送代码后手动触发 `Deploy learning lab to Pages`。工作流设置仓库子路径并上传 `website/dist`。
-- 私有仓库的 Pages 可用性与站点可见性取决于账户/组织设置。构建会携带全部 35 份 PDF（约128 MiB），不依赖私有 GitHub raw 链接。
-- 其他静态托管：上传 `dist/`；部署根路径可直接 `npm run build`，固定子路径用 `BASE_PATH=/your-path/ npm run build`。支持相对 base，使用 hash 路由无需服务器 fallback。
-
-将站点放入仓库名以外的 Pages 自定义路径时应调整 BASE_PATH；仓库首页型 Pages 需要 `/`。只有实际部署后验证首页、带 hash 实验与 PDF 链接可访问，才能报告已上线。
+- GitHub Actions 在 2026-10-26 的[部署运行](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40367261435)中报告部署成功；该次部署的提交为 `32f40a42a04fef92683e24e9aad873291d23e6fd`。这证明 Pages 部署任务成功，不等于本轮审查已经完成真实浏览器中的全部线上验收。
+- `.github/workflows/pages.yml` 在 `main` 有新提交时自动运行格式检查、类型检查、单元测试、生产构建、桌面/移动端 E2E 和原课程资料检查；所有构建步骤通过后才发布 `website/dist`。也可以在 Actions 中手动运行 `Deploy learning lab to Pages`。
+- `.github/workflows/website.yml` 在 push、Pull Request 和手动触发时验证网站；PR 验证不会部署，只有合并到 `main` 后才会触发发布工作流。
+- 仓库 Settings → Pages → Source 应选择 **GitHub Actions**。工作流自动设置仓库子路径 `/<repository-name>/`，Hash 路由不需要服务器端 fallback。
+- 部署日志报告的环境 URL 为 `http://threeyang.top/dlopt2026-learning-notes/`。若该自定义域名应当提供 HTTPS，请在 Settings → Pages 确认 **Enforce HTTPS** 已开启，并验证 DNS 与证书；仓库代码无法代替这项托管设置。当前审查环境无法独立访问该域名，因此线上可用性、HTTPS 重定向和真实手机浏览器表现仍须以实际访问核验。
+- **公开资源边界：** 仓库为 Public，35 份 PDF 仍可直接通过 GitHub 访问。网站资源白名单只控制 `resources/` 端点和构建产物，不是仓库权限或版权控制措施。若课件不允许公开分发，应将资料移出公开仓库或改用合适的私有存储。
+- 其他静态托管：上传 `dist/`；部署根路径可直接 `npm run build`，固定子路径用 `BASE_PATH=/your-path/ npm run build`。
 
 ## 审查修复（2026-10-26）
 
