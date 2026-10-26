@@ -70,6 +70,7 @@ export function App() {
   const lecture = route.startsWith("lecture/")
     ? course.find((l) => l.id === +route.split("/")[1])
     : undefined;
+  // prettier-ignore
   return (
     <>
       <a
