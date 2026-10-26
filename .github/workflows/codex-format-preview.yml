@@ -1,4 +1,5 @@
 name: Temporary formatter preview
+# Re-trigger the full verification workflow after formatter output is committed.
 
 on:
   push:
