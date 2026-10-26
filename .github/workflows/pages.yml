@@ -1,0 +1,57 @@
+name: Deploy learning lab to Pages
+# Deliberate manual deployment: first enable GitHub Actions as Pages source.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+        env:
+          E2E_PREVIEW: '1'
+          BASE_PATH: /${{ github.event.repository.name }}/
+          TEST_BASE_PATH: /${{ github.event.repository.name }}/
+      - name: Verify original materials
+        working-directory: .
+        run: |
+          python3 tools/check_notes.py
+          python3 tools/test_math_notes.py
+          python3 tools/test_check_notes.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/dist
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

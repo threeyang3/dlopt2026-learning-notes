@@ -10,6 +10,18 @@
 
 此前 10 讲的重点抽查已扩展为笔记正文逐章复核，细目和独立代数依据见 [逐章核查记录](CHAPTER_AUDIT.md)；这不代表全部原始 PDF 或论文实现均已审定。
 
+## 交互式动态学习实验室
+
+仓库新增独立的 [website/](website/README.md) 前端：14 讲知识地图与原笔记阅读器、完整 GD / Heavy-ball / NAG 实验、随机优化、SVD / 低秩投影、零阶、分布式、Attention、在线 softmax、低精度、LoRA 与 KV Cache 教学计算。全部实验在浏览器本地计算，原课程笔记保持独立。
+
+```bash
+cd website
+npm ci
+npm run dev
+```
+
+网站尚未部署。构建、测试、来源边界与 Pages 手动部署说明见 [网站 README](website/README.md)，实际验收与保留项见 [交付报告](website/DELIVERY.md)。`website/src/` 是应用源码，`website/e2e/` 是浏览器测试；依赖与构建产物不进入 notes 目录。
+
 ## 目录
 
 ```text

@@ -1,0 +1,397 @@
+[
+  {
+    "id": 1,
+    "slug": "Lecture-01_Introduction",
+    "title": "第 1 讲：课程导论与深度学习建模",
+    "english": "Introduction",
+    "goals": "完成本讲后，应能把“训练一个深度网络”改写成优化问题，并说清它为什么难；同时知道大语言模型从预训练基座到助手模型的基本流程，为 [[Lecture-07_Transformer-and-LLM-I]] 和 [[Lecture-14_Efficient-Fine-Tuning-and-Inference]] 建立全局地图。",
+    "prerequisites": [],
+    "topics": [
+      "从分类器到训练目标",
+      "为什么深度学习优化困难",
+      "LLM 是什么",
+      "ChatGPT 式训练流水线",
+      "如何高效使用 LLM",
+      "关键术语"
+    ],
+    "note": "notes/Lecture-01_Introduction.md",
+    "pdfs": [
+      "materials/Lecture-01_Introduction/01_introduction-to-deep-learning_slides.pdf",
+      "materials/Lecture-01_Introduction/02_introduction-to-llm_slides.pdf"
+    ],
+    "lab": "attention",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 分类分数、softmax、交叉熵、训练目标 | `01` 深度学习 slides PDF 页序 9-13、16-18 |\n| LLM 参数与四阶段 RLHF 配方 | `02` LLM slides PDF 页序 4-6、12、29-44（历史教学配方，不代表所有模型） |\n| Prompt、RAG、工具调用与 LoRA | `02` PDF 页序 50-63；方法选择为学习建议，不是性能保证 |\n\n## 自测\n\n1. 写出多分类交叉熵和 DNN 平均训练目标。\n2. 为什么“非凸”和“高维”不能通过更精确的梯度公式自动消失？\n3. Pretraining、SFT、RM、RL 各自解决什么问题？\n4. 一个需要引用当天新闻的问答系统，prompting、RAG、微调中应优先考虑哪两种？"
+  },
+  {
+    "id": 2,
+    "slug": "Lecture-02_Linear-Algebra-I",
+    "title": "第 2 讲：线性代数 I——梯度、Hessian、线性变换",
+    "english": "Linear Algebra I",
+    "goals": "掌握标量函数的梯度、Hessian 与二阶近似，理解线性变换、相似矩阵、特征值和特征向量的几何意义，并能用曲率解释条件数。比较矩阵函数可进入 [[Lecture-03_Linear-Algebra-II]]；将梯度搬到随机目标后进入 [[Lecture-05_Gradient-Descent]]。",
+    "prerequisites": [1],
+    "topics": [
+      "偏导、梯度与 Hessian",
+      "常见函数与计算套路",
+      "线性映射与矩阵表示",
+      "特征值与特征向量",
+      "条件数与“病态”"
+    ],
+    "note": "notes/Lecture-02_Linear-Algebra-I.md",
+    "pdfs": [
+      "materials/Lecture-02_Linear-Algebra-I/01_gradient-and-hessian_notes.pdf",
+      "materials/Lecture-02_Linear-Algebra-I/02_linear-transform-eigenvalues_notes.pdf"
+    ],
+    "lab": "linear",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 梯度、二次型与最小二乘、Hessian | `01_gradient-and-hessian_notes.pdf` PDF 页序 1-4、6-10；笔记最小二乘未除以样本数，与原稿平均损失相差该常数 |\n| 线性映射、相似矩阵、特征值 | `02_linear-transform-eigenvalues_notes.pdf` PDF 页序 1-6；谱定理另见第 3 讲 `02` PDF 页序 3 |\n\n驻点二阶判据、Taylor 余项和条件数约定是为优化主线补充的条件说明，不把原稿之外的表述标成教师逐字结论。\n\n## 自测\n\n1. 为什么连续二阶偏导下 Hessian 对称？\n2. 写出最小二乘目标的梯度和 Hessian。\n3. 相似矩阵为什么有相同特征值？\n4. 条件数很大时，GD 的轨迹通常呈现什么形状？"
+  },
+  {
+    "id": 3,
+    "slug": "Lecture-03_Linear-Algebra-II",
+    "title": "第 3 讲：线性代数 II——Jacobian、矩阵函数、范数与 SVD",
+    "english": "Linear Algebra II",
+    "goals": "把标量梯度扩展到向量值函数，掌握链式法则和反向传播的矩阵形式；理解正定、内积、范数、对偶范数与 SVD；能据此判断低秩、谱约束和权重衰减为何常有优化意义。",
+    "prerequisites": [2],
+    "topics": [
+      "Jacobian 与链式法则",
+      "向量化、Softmax 与反向传播",
+      "内积、正交与正定",
+      "矩阵函数与矩阵微积分",
+      "范数",
+      "SVD 与低秩"
+    ],
+    "note": "notes/Lecture-03_Linear-Algebra-II.md",
+    "pdfs": [
+      "materials/Lecture-03_Linear-Algebra-II/01_jacobian-hessian-chain-rule_notes.pdf",
+      "materials/Lecture-03_Linear-Algebra-II/02_inner-product-matrix-functions-backprop_notes.pdf",
+      "materials/Lecture-03_Linear-Algebra-II/03_norms-svd_notes.pdf"
+    ],
+    "lab": "linear",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| Jacobian、softmax、LSE、链式法则 | `01` notes PDF 页序 1、3-6；链式法则后续例题见 7-10 |\n| 内积、谱定理、Frobenius 微分和乘积反传 | `02` notes PDF 页序 1-3、15-22；迹梯度表为微分规则的整理 |\n| 范数、算子范数、SVD 与对偶范数 | `03` notes PDF 页序 1-2、6-7、9-14、14-18 |\n\n截断 SVD 的最佳近似式是补充的 Eckart–Young 结论；课件重点推导 SVD、范数和对偶范数，未将该最佳近似证明作为已核实的原稿定理。\n\n基础代数结束后，学习随机变量与期望：[[Lecture-04_Probability-and-Statistics]]。"
+  },
+  {
+    "id": 4,
+    "slug": "Lecture-04_Probability-and-Statistics",
+    "title": "第 4 讲：概率与统计",
+    "english": "Probability and Statistics",
+    "goals": "能把事件、条件概率、随机变量、期望与方差组织成随机优化所需的语言。重点不是枚举分布，而是掌握“全期望/全方差、独立性、条件化”如何解释随机梯度噪声和分布式数据异质性。",
+    "prerequisites": [1],
+    "topics": [
+      "事件与概率",
+      "条件概率与 Bayes 公式",
+      "随机变量与常见分布",
+      "期望与方差",
+      "联合、边缘与条件分布",
+      "协方差与相关系数",
+      "接到后续课程"
+    ],
+    "note": "notes/Lecture-04_Probability-and-Statistics.md",
+    "pdfs": [
+      "materials/Lecture-04_Probability-and-Statistics/01_probability-statistics_notes.pdf"
+    ],
+    "lab": "sgd",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 事件、条件概率、全概率与 Bayes | PDF 页序 1-9，关键公式见 6-8 |\n| 随机变量、常见分布、期望可积性 | PDF 页序 10-20，可积性见 18 |\n| 联合/边缘/条件分布、重期望 | PDF 页序 21-31，关键公式见 27-31 |\n| 协方差、相关系数与均值方差 | PDF 页序 32-34；全方差为本笔记独立补充 |\n\n接下来进入本课程的核心迭代算法：[[Lecture-05_Gradient-Descent]]。"
+  },
+  {
+    "id": 5,
+    "slug": "Lecture-05_Gradient-Descent",
+    "title": "第 5 讲：梯度下降、动量与加速",
+    "english": "Gradient Descent",
+    "goals": "掌握凸集、凸函数、强凸与 $L$-光滑的定义和几何含义，会推导并解释 GD 在非凸、凸、强凸三类问题上的收敛率；理解 Polyak、Nesterov 和 Anderson 加速的差别与边界。",
+    "prerequisites": [2, 3],
+    "topics": [
+      "凸性的四条等价线索",
+      "凸性、平滑性与曲率",
+      "梯度下降与驻点",
+      "收敛分析的三条路线",
+      "病态问题与动量",
+      "Nesterov 加速",
+      "Anderson acceleration",
+      "选择指南"
+    ],
+    "note": "notes/Lecture-05_Gradient-Descent.md",
+    "pdfs": [
+      "materials/Lecture-05_Gradient-Descent/01_convexity-gradient-descent_slides.pdf",
+      "materials/Lecture-05_Gradient-Descent/02_convexity-gradient-descent_notes.pdf",
+      "materials/Lecture-05_Gradient-Descent/03_accelerated-gradient-descent_slides.pdf",
+      "materials/Lecture-05_Gradient-Descent/04_accelerated-gradient-descent_notes.pdf"
+    ],
+    "lab": "gd",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 凸集、凸函数、强凸与光滑 | `01` slides PDF 页序 3、5、7-9 |\n| GD 更新、下降引理、非凸/凸/强凸速率 | `01` slides PDF 页序 11、14、17、19、21；本笔记统一为 $K$ 次更新，原稿部分公式使用 $K+1$ 项 |\n| Polyak 与 NAG 更新、步长和动量 | `03` accelerated slides PDF 页序 5、8、18-19、22-23 |\n| Anderson 与一阶下界 | `03` PDF 页序 26-27、30；完整固定点形式另见上述原论文 Algorithm 1 |\n\n表中 `01`、`03` 对应顶部配套文件的编号；页码均为 PDF 页序。笔记取 $\\gamma=1/L$ 的凸 GD 界是标准补充推导，课件第 19 页采用 $1/(2L)$，两者不能混用常数。\n\n一旦训练目标变成数据集上的平均，梯度只能抽样估计：[[Lecture-06_Stochastic-Gradient-Descent]]。"
+  },
+  {
+    "id": 6,
+    "slug": "Lecture-06_Stochastic-Gradient-Descent",
+    "title": "第 6 讲：SGD、动量与自适应优化",
+    "english": "Stochastic Gradient Descent",
+    "goals": "掌握随机目标、无偏梯度、方差与 mini-batch 的关系；能区分 SGD 的迭代速率和样本复杂度；理解 Momentum SGD 为什么不能普遍突破随机优化下界；掌握 AdaGrad、RMSProp、Adam 的更新式和适用场景。",
+    "prerequisites": [4, 5],
+    "topics": [
+      "从经验风险到随机目标",
+      "随机问题与无偏梯度",
+      "SGD 的收敛图景",
+      "Fourier/滤波视角的 Momentum SGD",
+      "自适应 SGD",
+      "自适应方法不是免费的"
+    ],
+    "note": "notes/Lecture-06_Stochastic-Gradient-Descent.md",
+    "pdfs": [
+      "materials/Lecture-06_Stochastic-Gradient-Descent/01_stochastic-gradient-descent_slides.pdf",
+      "materials/Lecture-06_Stochastic-Gradient-Descent/02_stochastic-gradient-descent_notes.pdf",
+      "materials/Lecture-06_Stochastic-Gradient-Descent/03_momentum-sgd_slides.pdf",
+      "materials/Lecture-06_Stochastic-Gradient-Descent/04_momentum-sgd_notes.pdf",
+      "materials/Lecture-06_Stochastic-Gradient-Descent/05_adaptive-sgd_slides.pdf"
+    ],
+    "lab": "sgd",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| SGD 建模、条件假设、非凸/凸/强凸界 | `01` slides PDF 页序 11、13-15、18、22-23 |\n| mini-batch 与条件独立性 | `01` PDF 页序 27-29 |\n| Momentum 更新与近似等价条件 | `03` momentum slides PDF 页序 8-9、12-13 |\n| Nesterov SGD 与随机下界 | `03` PDF 页序 14-18 |\n| AdaGrad、RMSProp、Adam | `05` adaptive slides PDF 页序 9、14、17-18；偏差修正另见 [[REFERENCES]] 中原始 Adam 论文 |\n\n编号对应顶部配套文件，页码采用 PDF 页序。一维稳态二阶矩是本笔记的独立补充推导；不将它冒充课件中的一般强凸定理。\n\n了解参数如何进入 Transformer 后，才能把这些优化器成本落实为实际显存：[[Lecture-07_Transformer-and-LLM-I]]。"
+  },
+  {
+    "id": 7,
+    "slug": "Lecture-07_Transformer-and-LLM-I",
+    "title": "第 7 讲：Seq2Seq、Attention 与 Transformer",
+    "english": "Transformer and LLM I",
+    "goals": "理解从 RNN encoder-decoder 到 attention、self-attention、multi-head attention 和 Transformer 的演化；能写出 attention 矩阵形式和计算复杂度，并能解释位置编码、残差、LayerNorm 与因果掩码的作用。",
+    "prerequisites": [1, 3],
+    "topics": [
+      "Seq2Seq 与 RNN 的瓶颈",
+      "Attention 是加权平均",
+      "Self-Attention",
+      "为什么需要多头",
+      "位置编码、残差与非线性的必要性",
+      "Transformer 结构",
+      "计算与表达力的取舍"
+    ],
+    "note": "notes/Lecture-07_Transformer-and-LLM-I.md",
+    "pdfs": [
+      "materials/Lecture-07_Transformer-and-LLM-I/01_transformer-attention_slides.pdf"
+    ],
+    "lab": "attention",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| Seq2Seq、RNN 瓶颈、分数与加权和 | PDF 页序 10-13、16、25、29-30 |\n| Self-attention、行 softmax、缩放 | PDF 页序 36-40；本笔记另显式列出矩阵维度与 mask 条件 |\n| 位置、非线性、多头与 Transformer | PDF 页序 45-59、60-65 |\n| 交叉注意力 | PDF 页序 66-67；复杂度为按矩阵乘法维度的补充分析 |"
+  },
+  {
+    "id": 8,
+    "slug": "Lecture-08_Transformer-and-LLM-II",
+    "title": "第 8 讲：Transformer 的参数、计算、显存与 FlashAttention",
+    "english": "Transformer and LLM II",
+    "goals": "能用 $l,h,v,s,b$ 等符号估算 decoder-only Transformer 的参数、FLOPs、训练显存和 attention 的 HBM 通信；理解 FlashAttention 的 tiling、kernel fusion 与 online softmax，知道它节省的是中间内存和显存访问，不是把 $O(N^2d)$ 计算变成线性。",
+    "prerequisites": [7],
+    "topics": [
+      "记号与参数估算",
+      "FLOPs",
+      "FlashAttention：减少 HBM 访问",
+      "训练显存五分量",
+      "计算、带宽与容量三本账"
+    ],
+    "note": "notes/Lecture-08_Transformer-and-LLM-II.md",
+    "pdfs": [
+      "materials/Lecture-08_Transformer-and-LLM-II/01_transformer-parameter-computation_slides.pdf",
+      "materials/Lecture-08_Transformer-and-LLM-II/02_transformer-memory-cost_slides.pdf",
+      "materials/Lecture-08_Transformer-and-LLM-II/03_flash-attention_slides.pdf"
+    ],
+    "lab": "flash",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 参数量与架构假设 | `01` parameter slides PDF 页序 6-14、16-24 |\n| FLOPs 与输入 embedding 口径区别 | `01` PDF 页序 26-35；原稿第 27 页按 one-hot 稠密乘法计输入 embedding，笔记采用实际查表口径 |\n| 训练显存、激活与例子 | `02` memory slides PDF 页序 4-5、12-17；7B 的 2 GB 激活另见第 10 讲课件 |\n| Online softmax、融合与 HBM | `03` FlashAttention slides PDF 页序 19-24、27-39；IO 适用条件补充自原论文 |"
+  },
+  {
+    "id": 9,
+    "slug": "Lecture-09_Advanced-Optimizers",
+    "title": "第 9 讲：面向 LLM 的高级优化器",
+    "english": "Advanced Optimizers",
+    "goals": "围绕“省优化器状态”和“利用曲率”两条线理解 Adafactor、Adam-mini、Shampoo、SOAP、Muon、Sophia。必须能说明每种方法压缩了什么、增加什么计算、对模型结构作了什么假设，而不是只记名称。",
+    "prerequisites": [6, 8],
+    "topics": [
+      "先算 Adam 的账",
+      "Adafactor",
+      "Adam-mini：按 Hessian 近似块结构共享学习率",
+      "二阶预条件的基本思想",
+      "Shampoo 与 SOAP",
+      "Muon：正交化矩阵更新",
+      "Sophia：曲率对角与逐坐标裁剪",
+      "方法对照"
+    ],
+    "note": "notes/Lecture-09_Advanced-Optimizers.md",
+    "pdfs": [
+      "materials/Lecture-09_Advanced-Optimizers/01_advanced-optimizers_slides.pdf"
+    ],
+    "lab": "resources",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "Lite / MuonM 的定义仍需课堂材料确认；Sophia 等见笔记扩展。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| Adam 显存与 Adafactor | PDF 页序 2-11；行列因子见 5-9 |\n| Adam-mini 与分组 | PDF 页序 12-25；分组见 18-20 |\n| 二阶方法、Shampoo、SOAP | PDF 页序 26-41；Shampoo 矩阵算法见 36，SOAP 见 40-41 |\n| Muon | PDF 页序 42-51；更新见 44 |\n| Sophia、Hutchinson、GNB/Bartlett、裁剪 | PDF 页序 52-72；估计见 56-60，更新与裁剪见 68-70 |\n\n**页码约定：** 本 PDF 的页序与部分页脚编号不一致，例如 PDF 第 36 页页脚为 38，第 69 页页脚为 74；以上全部使用 PDF 页序，避免把页脚数字当成文件页码。"
+  },
+  {
+    "id": 10,
+    "slug": "Lecture-10_Subspace-Optimizers",
+    "title": "第 10 讲：子空间、坐标与分块优化",
+    "english": "Subspace Optimizers",
+    "goals": "掌握低秩投影、随机子空间、块坐标下降和分块训练的共同结构；能说明 GaLore 为什么可能失稳、GoLore/RSO 怎样补足、块训练为什么省激活但可能更慢。本讲是把 [[Lecture-09_Advanced-Optimizers]] 的“压缩状态”推进到“只沿低维方向更新”的关键。",
+    "prerequisites": [3, 9],
+    "topics": [
+      "子空间优化的统一框架",
+      "GaLore 与其收敛风险",
+      "GoLore 与混合策略",
+      "RSO：随机子空间优化",
+      "块坐标下降",
+      "分块/逐层训练 LISA"
+    ],
+    "note": "notes/Lecture-10_Subspace-Optimizers.md",
+    "pdfs": [
+      "materials/Lecture-10_Subspace-Optimizers/01_golore-rso_slides.pdf",
+      "materials/Lecture-10_Subspace-Optimizers/02_block-coordinate-descent_slides.pdf",
+      "materials/Lecture-10_Subspace-Optimizers/03_block-wise-lisa_slides.pdf"
+    ],
+    "lab": "subspace",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| GaLore 投影/状态、噪声反例、GoLore | `01_golore-rso` PDF 页序 15-16、23-28、31-34 |\n| RSO 子问题、状态与激活 | `01_golore-rso` PDF 页序 42-47；本讲仅概述，原稿子问题含二次正则项 |\n| 精确块最小化、随机块梯度与选块 | `02_block-coordinate` PDF 页序 5-10 |\n| 块梯度收敛条件与证明、坐标友好结构 | `02_block-coordinate` PDF 页序 12-16 |\n| 分块训练、激活边界与实验 | `03_block-wise-lisa` PDF 页序 13-24、25-26 |\n\n如果连梯度都不可用，只能观察函数值，就进入 [[Lecture-11_Zeroth-Order-Optimizers]]。"
+  },
+  {
+    "id": 11,
+    "slug": "Lecture-11_Zeroth-Order-Optimizers",
+    "title": "第 11 讲：零阶优化与仅前向训练",
+    "english": "Zeroth Order Optimizers",
+    "goals": "掌握利用函数值差估计梯度的三类方法：有限差分、线性插值和球面平滑；理解维度 $d$ 带来的查询/方差代价；能够解释 MeZO 为什么只做前向就能微调，以及 LOZO 为什么尝试低秩扰动。",
+    "prerequisites": [4, 5, 10],
+    "topics": [
+      "零阶问题",
+      "用函数值估计梯度",
+      "MeZO：只做前向的微调",
+      "从 MeZO 到 LOZO",
+      "复杂度与适用边界",
+      "与其他“省内存”方法的区别"
+    ],
+    "note": "notes/Lecture-11_Zeroth-Order-Optimizers.md",
+    "pdfs": [
+      "materials/Lecture-11_Zeroth-Order-Optimizers/01_zeroth-order-gradient-descent_slides.pdf",
+      "materials/Lecture-11_Zeroth-Order-Optimizers/02_zeroth-order-optimization_notes.pdf",
+      "materials/Lecture-11_Zeroth-Order-Optimizers/03_low-rank-zeroth-order_slides.pdf"
+    ],
+    "lab": "zeroth",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 有限差分、查询次数及误差 | `01` ZO slides PDF 页序 8-10 |\n| 线性测量矩阵与稀疏恢复 | `01` PDF 页序 13-17 |\n| 球面估计器、偏差与维度相关步长 | `01` PDF 页序 18-21；球体平滑恒等式另见上述原论文 Lemma 1 |\n| MeZO 中心差分与种子复用 | `03` low-rank ZO slides PDF 页序 6-10 |\n| LOZO 低秩扰动与子空间解释 | `03` PDF 页序 13-20 |\n\n编号对应顶部配套文件，页码采用 PDF 页序。课件的随机零阶收敛式须按随机方向取期望理解；本笔记不直接照搬省略期望符号的简式作为确定性保证。\n\n当模型参数太大、数据也太多，单机无法完成任务时，进入分布式优化：[[Lecture-12_Distributed-Optimizers]]。"
+  },
+  {
+    "id": 12,
+    "slug": "Lecture-12_Distributed-Optimizers",
+    "title": "第 12 讲：分布式优化",
+    "english": "Distributed Optimizers",
+    "goals": "能把 LLM 训练拆成数据、流水线、张量三种并行；掌握 PSGD、去中心化 SGD、局部 SGD 与通信压缩的更新式和瓶颈；理解“通信更少”不等于“端到端更快”，也不一定意味着总通信量更小。",
+    "prerequisites": [6],
+    "topics": [
+      "为什么需要分布式",
+      "数据并行与 PSGD",
+      "流水线并行",
+      "张量并行",
+      "3D 并行组合",
+      "去中心化 SGD",
+      "局部 SGD / FedAvg",
+      "通信压缩",
+      "选择清单"
+    ],
+    "note": "notes/Lecture-12_Distributed-Optimizers.md",
+    "pdfs": [
+      "materials/Lecture-12_Distributed-Optimizers/01_parallelism_slides.pdf",
+      "materials/Lecture-12_Distributed-Optimizers/02_decentralized-learning_slides.pdf",
+      "materials/Lecture-12_Distributed-Optimizers/03_communication-compression-local-learning_slides.pdf"
+    ],
+    "lab": "distributed",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| 流水线调度与通信 | `01_parallelism` PDF 页序 34-41；已对照第 36 页时序图，笔记表仅含前向 |\n| 张量切分、通信与 3D 分组 | `01` PDF 页序 43-50；已查看 44、45、47、50 页图，并按笔记行 batch 约定核算 |\n| PSGD、线性加速 | `02_decentralized` PDF 页序 4-7；需结合第 6 讲噪声主导区间理解 |\n| DSGD 更新、共识和定理条件 | `02` PDF 页序 12、20-26；Lian 文献中的另一顺序见本节链接 |\n| 异质性、Gradient Tracking、拓扑 | `02` PDF 页序 34-40、45-68；此处以机制对照为主 |\n| Local SGD/FedAvg、SCAFFOLD 与参与采样 | `03_communication-compression-local-learning` PDF 页序 9-10、18-22、27-28 |\n| 无偏压缩、Top-$k$、EF21、总通信 | `03` PDF 页序 36-37、42-45、51-57；Random-$k$ 缩放例子是笔记补充 |\n\n全部页码为 PDF 页序。局部 SGD 采用 $r,t$ 双索引；第 6 节中的 $k$ 则表示每次通信迭代，不能跨算法机械对应。\n\n集群计算的另一个瓶颈是数值表示和带宽：[[Lecture-13_Mixed-Precision-Training]]。"
+  },
+  {
+    "id": 13,
+    "slug": "Lecture-13_Mixed-Precision-Training",
+    "title": "第 13 讲：混合精度、FP8 与低精度训练",
+    "english": "Mixed Precision Training",
+    "goals": "掌握 IEEE 浮点的符号、指数、尾数以及范围/精度的取舍；能解释 FP32 主权重、loss scaling 和 FP8 累加路径；理解 FP8 与 NVFP4 为什么必须配合结构化的混合精度，而不是简单“把全部运算换成低位宽”。",
+    "prerequisites": [8],
+    "topics": [
+      "浮点数的位布局",
+      "为什么需要 FP32 主权重",
+      "Loss scaling",
+      "FP8 训练回路",
+      "FP8 的两个核心难题",
+      "NVFP4 与 microscaling",
+      "硬件与软件边界",
+      "成本与质量判断"
+    ],
+    "note": "notes/Lecture-13_Mixed-Precision-Training.md",
+    "pdfs": [
+      "materials/Lecture-13_Mixed-Precision-Training/01_mixed-precision-foundations_slides.pdf",
+      "materials/Lecture-13_Mixed-Precision-Training/02_fp8-nvfp4_slides.pdf"
+    ],
+    "lab": "precision",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| FP16/FP32 边界、主权重、loss scaling | `01` foundations PDF 页序 8-11、18、24-32、38；该文件包含动画重复页，页脚不可直接当页序 |\n| FP8 教学编码、训练配方、随机舍入 | `02` PDF 页序 3-6、12-20、23-25；编码差异和饱和边界见本笔记说明 |\n| NVFP4 | `02` PDF 页序 31-37，另核对上述 NVIDIA 格式说明 |\n| 硬件/软件入口 | `02` PDF 页序 39-53；仅作历史入口概览，未逐框架实测兼容性 |\n\n低精度解决“每个数值多大”，而最后一讲解决“哪些参数要训练、哪些推理状态要保存”：[[Lecture-14_Efficient-Fine-Tuning-and-Inference]]。"
+  },
+  {
+    "id": 14,
+    "slug": "Lecture-14_Efficient-Fine-Tuning-and-Inference",
+    "title": "第 14 讲：参数高效微调与高效推理",
+    "english": "Efficient Fine Tuning and Inference",
+    "goals": "把“训练阶段省什么”和“推理阶段省什么”分开：前者主要缩小可训练参数、梯度与优化器状态，后者主要管理 KV Cache、注意力计算和请求调度。应能说明 LoRA、DoRA、LISA、GQA/MLA、StreamingLLM、vLLM 和投机解码各解决哪一环。",
+    "prerequisites": [7, 8, 13],
+    "topics": [
+      "先选微调策略",
+      "参数高效微调方法",
+      "自回归推理与 KV Cache",
+      "减少 KV Cache",
+      "vLLM 与 PagedAttention",
+      "投机解码",
+      "训练与推理成本对照"
+    ],
+    "note": "notes/Lecture-14_Efficient-Fine-Tuning-and-Inference.md",
+    "pdfs": [
+      "materials/Lecture-14_Efficient-Fine-Tuning-and-Inference/01_efficient-fine-tuning_slides.pdf",
+      "materials/Lecture-14_Efficient-Fine-Tuning-and-Inference/02_efficient-inference_slides.pdf"
+    ],
+    "lab": "inference",
+    "status": "partially_verified",
+    "evidence": "原笔记与 SOURCE_AUDIT.md 已对照；网站对应计算引擎另有数值测试。整讲及所有 PDF 未在本轮独立逐式复核。",
+    "category": "课程核心",
+    "scope": "历史年份资料若被当年官网列出，仍属课程核心。",
+    "sourceLocations": "| 主题 | 原始资料位置 |\n|---|---|\n| LoRA、初始化、状态与 LoRA+ | `01` fine-tuning PDF 页序 16-26；笔记给出独立参数计数与首步梯度解释 |\n| DoRA 列幅度/方向、LISA 激活 | `01` PDF 页序 27-32、33-38，关键图见 30、36 |\n| KV Cache、MHA/GQA/MLA 与 Quest | `02` inference PDF 页序 7-18、24；缓存字节式为按形状补充的账本 |\n| 投机解码与实验速度 | `02` PDF 页序 29-31；分布保持需要正确的接受/校正采样，而非任意前缀验证 |\n| vLLM/PagedAttention 与吞吐对比 | `02` PDF 页序 32-44，2-4 倍来自 44 页特定基线条件，不是普遍保证 |"
+  }
+]

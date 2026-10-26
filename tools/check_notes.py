@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import hashlib
 import re
 from pathlib import Path
@@ -54,12 +55,22 @@ def check_math(path: Path, text: str, errors: list[str]) -> None:
                 )
 
 
+def markdown_files(root: Path) -> list[Path]:
+    """Check maintained Markdown, not vendored dependencies or generated copies."""
+    generated = {".git", "node_modules", "dist", "test-results", "playwright-report", "__pycache__"}
+    result: list[Path] = []
+    for current, directories, files in os.walk(root):
+        directories[:] = [name for name in directories if name not in generated]
+        result.extend(Path(current) / name for name in files if name.endswith(".md"))
+    return sorted(result)
+
+
 def main() -> int:
     errors: list[str] = []
     if len(LECTURE_FILES) != 14:
         errors.append(f"expected 14 lecture notes, found {len(LECTURE_FILES)}")
 
-    md_files = sorted(ROOT.rglob("*.md"))
+    md_files = markdown_files(ROOT)
     for path in md_files:
         text = path.read_text(encoding="utf-8")
         body = without_code_spans(text)
