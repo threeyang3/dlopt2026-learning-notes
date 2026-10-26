@@ -232,7 +232,9 @@ test("跨讲笔记链接保留章节锚点并滚动到目标标题", async ({ pa
     )
     .toBeGreaterThanOrEqual(0);
   await expect
-    .poll(() => target.evaluate((element) => element.getBoundingClientRect().top))
+    .poll(() =>
+      target.evaluate((element) => element.getBoundingClientRect().top),
+    )
     .toBeLessThan(300);
 });
 
