@@ -28,7 +28,7 @@ BASE_PATH=/dlopt2026-learning-notes/ npm run build
 E2E_PREVIEW=1 BASE_PATH=/dlopt2026-learning-notes/ TEST_BASE_PATH=/dlopt2026-learning-notes/ npm run e2e
 ```
 
-Linux CI 用 `npx playwright install --with-deps chromium`。首次安装依赖与浏览器需要网络。开发服务器和预览服务器只监听本机。原资料在开发和构建后均通过 `resources/` 本地提供，原始笔记不被改写；原课程 Markdown 同时经 Vite raw import 由阅读器渲染。
+GitHub-hosted `ubuntu-24.04` CI 使用 `npx playwright install chromium`，避免在每次构建中重复运行系统包管理器安装；未预装浏览器系统依赖的自管 Linux 环境可使用 `npx playwright install --with-deps chromium`。首次下载浏览器仍需要网络。开发服务器和预览服务器只监听本机。原资料在开发和构建后均通过 `resources/` 本地提供，原始笔记不被改写；原课程 Markdown 同时经 Vite raw import 由阅读器渲染。
 
 ```bash
 # 从仓库根目录运行原有校验
