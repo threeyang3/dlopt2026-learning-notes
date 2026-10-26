@@ -5,6 +5,8 @@ import {
   type Quadratic,
   type State,
   type Vec,
+  type Trajectory,
+  trajectoryStatus,
 } from "../engines/optimization";
 export const colors = Array.from(
   { length: 6 },
@@ -26,6 +28,7 @@ export const seriesColor = (name: string, index: number) =>
 export interface Series {
   name: string;
   states: State[];
+  termination?: Trajectory["termination"];
 }
 export function Landscape({
   q,
@@ -164,6 +167,29 @@ export function Landscape({
       <text x="25" y="476" fill="var(--muted)" fontSize="12">
         坐标范围固定，超出窗口的轨迹裁剪；箭头为归一化 −∇f
       </text>
+      {series.map(
+        (run, i) =>
+          run.termination && (
+            <text
+              key={run.name}
+              x="25"
+              y={32 + i * 17}
+              fill={seriesColor(run.name, i)}
+              fontSize="11"
+            >
+              <title>
+                {trajectoryStatus(
+                  { states: run.states, termination: run.termination },
+                  index,
+                )}
+              </title>
+              {run.name}：
+              {index < run.termination.iteration
+                ? "运行中"
+                : `${run.termination.reason === "diverged" ? "数值终止" : "预算结束"} k=${run.termination.iteration}`}
+            </text>
+          ),
+      )}
       {onStart && (
         <rect
           x="20"
@@ -212,7 +238,12 @@ export function Curve({
   const lo = Math.min(...all, 0),
     hi = Math.max(...all, lo + 1),
     y = (v: number) => 180 - ((transform(v) - lo) / (hi - lo)) * 155;
-  const length = Math.max(1, ...series.map((s) => s.states.length - 1)),
+  const length = Math.max(
+      1,
+      ...series.map((s) =>
+        Math.max(s.states.length - 1, s.termination?.iteration ?? 0),
+      ),
+    ),
     x = (k: number) => 62 + (k / length) * 510;
   return (
     <svg
@@ -248,6 +279,7 @@ export function Curve({
       )}
       {series.map((s, i) => (
         <polyline
+          data-testid={"curve-" + s.name}
           key={s.name}
           points={s.states
             .slice(0, index + 1)

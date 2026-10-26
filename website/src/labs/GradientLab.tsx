@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import {
   trajectory,
+  trajectoryStatus,
+  comparisonLimit,
   gradient,
   value,
   hessian,
@@ -42,15 +44,16 @@ export function GradientLab({ preview = false }: { preview?: boolean }) {
         : [algorithm]
       ).map((name) => ({
         name,
-        states: trajectory(q, start, name, rate, beta),
+        ...trajectory(q, start, name, rate, beta),
       })),
     [q, start, rate, beta, algorithm, compare],
   );
-  const max = Math.min(...series.map((s) => s.states.length - 1)),
+  const max = comparisonLimit(series),
     player = usePlayback(max),
     current = series.find((s) => s.name === algorithm) ?? series[0],
-    s = current.states[Math.min(player.index, current.states.length - 1)],
-    previous = current.states[Math.max(0, player.index - 1)],
+    stateIndex = Math.min(player.index, current.states.length - 1),
+    s = current.states[stateIndex],
+    previous = current.states[Math.max(0, stateIndex - 1)],
     A = hessian(q),
     g = gradient(q, s.evaluation),
     actual = player.index ? value(q, s.x) - value(q, previous.x) : 0;
@@ -86,6 +89,25 @@ export function GradientLab({ preview = false }: { preview?: boolean }) {
             onStart={(x) => change(() => setStart(x))}
           />
           <Playback player={player} max={max} />
+          <ul
+            className="trajectory-status"
+            aria-label="各算法计算状态"
+            aria-live="polite"
+          >
+            {series.map((run) => (
+              <li
+                key={run.name}
+                data-testid={"run-" + run.name}
+                data-state-iteration={Math.min(
+                  player.index,
+                  run.states.length - 1,
+                )}
+              >
+                {run.name}：{trajectoryStatus(run, player.index)}；显示状态 k=
+                {Math.min(player.index, run.states.length - 1)}
+              </li>
+            ))}
+          </ul>
         </div>
         <aside className="control-panel">
           <h2>改变条件，观察结果</h2>
@@ -216,7 +238,7 @@ export function GradientLab({ preview = false }: { preview?: boolean }) {
       </div>
       <div className="metrics" aria-live="polite">
         {[
-          ["当前算法", current.name],
+          ["当前算法", current.name + `（状态 k=${stateIndex}）`],
           ["f(xₖ) − f★", fmt(s.value)],
           ["‖∇f(xₖ)‖₂", fmt(s.norm)],
           ["‖xₖ − x★‖₂", fmt(s.error)],
@@ -264,7 +286,8 @@ export function GradientLab({ preview = false }: { preview?: boolean }) {
               </p>
             </section>
             <section className="state-panel">
-              <h2>第 {player.index} 步的计算账本</h2>
+              <h2>第 {stateIndex} 步的计算账本</h2>
+              <p>{trajectoryStatus(current, player.index)}</p>
               <dl>
                 <dt>参数 xₖ</dt>
                 <dd>{vector(s.x)}</dd>
@@ -293,7 +316,7 @@ export function GradientLab({ preview = false }: { preview?: boolean }) {
               </p>
               <p className="muted">
                 超过 10⁵⁰
-                的参数误差会停止计算，保留此前所有有限状态。每个按钮恢复保存状态，播放速度不影响递推结果。
+                的参数误差会停止计算，保留越界时的有限状态，非有限的下一次尝试仅记录发生位置。各算法独立停止，指标停止后不延长为虚构的新迭代。每个按钮恢复保存状态，播放速度不影响递推结果。
               </p>
             </section>
           </div>
@@ -371,9 +394,10 @@ export function GradientLab({ preview = false }: { preview?: boolean }) {
               GD。
             </p>
             {(() => {
-              const gd =
-                  series.find((x) => x.name === "GD")?.states[
-                    Math.min(player.index, max)
+              const gdRun = series.find((run) => run.name === "GD"),
+                gd =
+                  gdRun?.states[
+                    Math.min(player.index, gdRun.states.length - 1)
                   ] ?? s,
                 gg = gradient(q, gd.x),
                 next = value(q, [

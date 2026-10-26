@@ -55,7 +55,16 @@ export function App() {
     : undefined;
   return (
     <>
-      <a className="skip" href="#main">
+      <a
+        className="skip"
+        href="#main"
+        onClick={(event) => {
+          event.preventDefault();
+          const main = document.getElementById("main");
+          main?.focus({ preventScroll: true });
+          main?.scrollIntoView({ block: "start" });
+        }}
+      >
         跳至主要内容
       </a>
       <header>

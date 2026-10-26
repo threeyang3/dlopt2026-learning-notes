@@ -5,6 +5,8 @@ import {
   state,
   step,
   trajectory,
+  comparisonLimit,
+  trajectoryStatus,
   seeded,
   batchGradient,
   stochastic,
@@ -56,8 +58,8 @@ describe("解析二次函数与优化递推", () => {
   it("稳定区间下降，超界真实发散", () => {
     const stable = trajectory(q, [3, 2], "GD", 0.1, 0),
       unstable = trajectory(q, [3, 2], "GD", 0.3, 0);
-    expect(stable.at(-1)!.value).toBeLessThan(1e-15);
-    expect(unstable.at(-1)!.value).toBeGreaterThan(1e10);
+    expect(stable.states.at(-1)!.value).toBeLessThan(1e-15);
+    expect(unstable.states.at(-1)!.value).toBeGreaterThan(1e10);
   });
   it("光滑下降界与数值一致", () => {
     for (const rate of [0.01, 0.08, 0.125, 0.2]) {
@@ -105,5 +107,42 @@ describe("采样、mini-batch 与 Adam", () => {
     expect(s.vhat[0]).toBeCloseTo(16);
     expect(s.x[0]).toBeCloseTo(2.9);
     expect(s.x[1]).toBeCloseTo(1.9);
+  });
+});
+
+describe("独立轨迹终止", () => {
+  it("NAG 数值越界后 Heavy-ball 仍计算到完整预算，保留有限越界状态", () => {
+    const problem: Quadratic = { mu: 1, L: 40, angle: 0, optimum: [0, 0] };
+    const nag = trajectory(problem, [-4, 3], "Nesterov", 0.08, 0.65);
+    const hb = trajectory(problem, [-4, 3], "Heavy-ball", 0.08, 0.65);
+    expect(nag.termination.reason).toBe("diverged");
+    expect(nag.termination.detail).toBe("error_limit");
+    expect(nag.termination.iteration).toBeLessThan(120);
+    expect(nag.states.at(-1)!.error).toBeGreaterThan(1e50);
+    expect(nag.states.at(-2)!.error).toBeLessThanOrEqual(1e50);
+    expect(nag.states.length - 1).toBe(nag.termination.iteration);
+    expect(nag.states.every((s) => Number.isFinite(s.value))).toBe(true);
+    expect(hb.termination).toEqual({
+      reason: "iteration_limit",
+      iteration: 120,
+    });
+    expect(hb.states).toHaveLength(121);
+    expect(hb.states.at(-1)!.value).toBeLessThan(hb.states[0].value);
+    expect(comparisonLimit([nag, hb])).toBe(120);
+    expect(trajectoryStatus(nag, 0)).toBe("运行中");
+    expect(trajectoryStatus(nag, 120)).toContain("最后有限状态");
+  });
+  it("非有限尝试不进入图形状态，但记录发生步，预算不是收敛判据", () => {
+    const run = trajectory(q, [3, 2], "GD", Number.MAX_VALUE, 0, 3);
+    expect(run.states).toHaveLength(1);
+    expect(run.termination).toEqual({
+      reason: "diverged",
+      iteration: 1,
+      detail: "non_finite",
+    });
+    expect(comparisonLimit([run])).toBe(1);
+    expect(trajectoryStatus(run, 1)).toContain("下一状态非有限");
+    const capped = trajectory(q, [3, 2], "GD", 0.001, 0, 1);
+    expect(trajectoryStatus(capped, 1)).toContain("不代表已收敛");
   });
 });

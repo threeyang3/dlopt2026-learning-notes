@@ -1,26 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import {
-  cpSync,
-  mkdirSync,
-  createReadStream,
-  existsSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
-import { resolve, sep, extname } from "node:path";
-const resourcePaths = [
-  "notes",
-  "materials",
-  ...readdirSync("..").filter((name) => name.endsWith(".md")),
-  "source_manifest.tsv",
-  "checksums.sha256",
-  "website/README.md",
-  "website/DELIVERY.md",
-  "website/VERIFICATION.md",
-  "website/ARCHITECTURE.md",
-];
+import { createReadStream } from "node:fs";
+import { resolve, extname } from "node:path";
+import { resourcePath, copyResources } from "./scripts/resources";
 export default defineConfig({
+  appType: "mpa",
   base: process.env.BASE_PATH || "./",
   plugins: [
     react(),
@@ -29,31 +13,10 @@ export default defineConfig({
       configureServer(server) {
         const root = resolve("..");
         server.middlewares.use("/resources/", (req, res, next) => {
-          let path: string;
-          try {
-            path = resolve(
-              root,
-              decodeURIComponent(
-                (req.url || "").split("?")[0].replace(/^\//, ""),
-              ),
-            );
-          } catch {
-            res.statusCode = 400;
-            res.end();
-            return;
-          }
-          const allowed = resourcePaths.some(
-            (p) =>
-              path === resolve(root, p) ||
-              path.startsWith(resolve(root, p) + sep),
-          );
-          if (
-            !allowed ||
-            !path.startsWith(root + sep) ||
-            !existsSync(path) ||
-            !statSync(path).isFile()
-          ) {
-            next();
+          const path = resourcePath(root, req.url || "");
+          if (!path) {
+            res.statusCode = 404;
+            res.end("Resource not published");
             return;
           }
           const mime: Record<string, string> = {
@@ -73,11 +36,7 @@ export default defineConfig({
         });
       },
       closeBundle() {
-        mkdirSync("dist/resources", { recursive: true });
-        for (const path of resourcePaths) {
-          mkdirSync(resolve("dist/resources", path, ".."), { recursive: true });
-          cpSync("../" + path, "dist/resources/" + path, { recursive: true });
-        }
+        copyResources(resolve(".."), resolve("dist/resources"));
       },
     },
   ],

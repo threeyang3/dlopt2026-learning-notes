@@ -108,3 +108,7 @@ website/src/tests/optimization.test.ts
 website/tsconfig.json
 website/vite.config.ts
 ```
+
+## 审查修复补充（2026-10-26）
+
+本次集中处理审查的三项问题与CI格式检查，不新增算法。新增 `scripts/resources.ts` 与 `src/tests/resources.test.ts`，修改优化引擎/实验/画布、App键盘跳转、Vite资源配置、测试与两个工作流。具体行为与证据见 VERIFICATION 的审查修复验证。本地验收增加为28项单元/数值/内容测试和18项桌面/手机E2E；远端结果以本次修复提交的Actions运行记录为准。Pages仍需单独实际部署验收，源码上传不代表线上发布。

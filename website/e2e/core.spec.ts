@@ -144,3 +144,66 @@ test("键盘操作、减少动态效果与主题持久化", async ({ page }, inf
     fullPage: false,
   });
 });
+
+test("键盘跳过导航保持当前路由并聚焦主要内容", async ({ page }) => {
+  for (const route of ["gd", "lecture/5"]) {
+    await page.goto("./#" + route);
+    await page.reload();
+    await page.keyboard.press("Tab");
+    const skip = page.getByRole("link", { name: "跳至主要内容" });
+    await expect(skip).toBeFocused();
+    const before = page.url();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("main")).toBeFocused();
+    expect(page.url()).toBe(before);
+    await expect(page.getByRole("heading", { name: "未找到页面" })).toHaveCount(
+      0,
+    );
+  }
+});
+test("比较中 NAG 越界不截断 Heavy-ball，终止后指标保持最后真实状态", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("./#gd");
+  await page.getByRole("slider", { name: "条件数 κ = L/μ" }).fill("40");
+  const scrub = page.getByRole("slider", { name: "迭代位置" });
+  await expect(scrub).toHaveAttribute("max", "120");
+  await scrub.fill("110");
+  const nag = page.getByTestId("run-Nesterov"),
+    hb = page.getByTestId("run-Heavy-ball");
+  await expect(nag).toContainText("数值发散保护");
+  const last = Number(await nag.getAttribute("data-state-iteration"));
+  expect(last).toBeLessThan(110);
+  await expect(hb).toHaveAttribute("data-state-iteration", "110");
+  await page.getByLabel("观察算法").selectOption("Nesterov");
+  // Algorithm selection resets playback; seek past its independent end again.
+  await scrub.fill("120");
+  await expect(page.locator(".state-panel h2")).toHaveText(
+    `第 ${last} 步的计算账本`,
+  );
+  await expect(hb).toHaveAttribute("data-state-iteration", "120");
+  await expect(hb).toContainText("达到迭代预算");
+  expect(
+    (await page.getByTestId("curve-Nesterov").getAttribute("points"))!
+      .trim()
+      .split(/\s+/),
+  ).toHaveLength(last + 1);
+  expect(
+    (await page.getByTestId("curve-Heavy-ball").getAttribute("points"))!
+      .trim()
+      .split(/\s+/),
+  ).toHaveLength(121);
+  await page.getByRole("button", { name: "后退一步" }).click();
+  await expect(nag).toHaveAttribute("data-state-iteration", String(last));
+  expect(errors).toEqual([]);
+});
+test("资源端点拒绝未发布的项目文件", async ({ request }) => {
+  const response = await request.get("resources/website/package.json");
+  expect(response.status()).toBe(404);
+  const encoded = await request.get(
+    "resources/notes/%2e%2e/website/package.json",
+  );
+  expect(encoded.status()).toBe(404);
+});

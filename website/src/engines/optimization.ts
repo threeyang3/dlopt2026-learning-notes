@@ -80,6 +80,27 @@ export function step(
   const x = add(evaluation, scale(velocity, -rate));
   return state(q, x, s.x, velocity, evaluation);
 }
+export interface Trajectory {
+  states: State[];
+  termination: {
+    reason: "iteration_limit" | "diverged";
+    iteration: number;
+    detail?: "error_limit" | "non_finite";
+  };
+}
+export const ERROR_LIMIT = 1e50;
+function finiteState(s: State) {
+  return [
+    ...s.x,
+    ...s.previous,
+    ...s.velocity,
+    ...s.gradient,
+    ...s.evaluation,
+    s.value,
+    s.norm,
+    s.error,
+  ].every(Number.isFinite);
+}
 export function trajectory(
   q: Quadratic,
   x: Vec,
@@ -87,14 +108,45 @@ export function trajectory(
   rate: number,
   beta: number,
   count = 120,
-) {
-  const states = [state(q, x)];
-  for (let k = 0; k < count; k++) {
-    const next = step(q, states[k], algorithm, rate, beta);
-    if (!Number.isFinite(next.value) || next.error > 1e50) break;
+): Trajectory {
+  if (!Number.isInteger(count) || count < 0)
+    throw Error("迭代预算必须为非负整数");
+  const initial = state(q, x);
+  if (!finiteState(initial)) throw Error("初始状态必须有限");
+  const states = [initial];
+  if (initial.error > ERROR_LIMIT)
+    return {
+      states,
+      termination: { reason: "diverged", iteration: 0, detail: "error_limit" },
+    };
+  for (let iteration = 1; iteration <= count; iteration++) {
+    const next = step(q, states[states.length - 1], algorithm, rate, beta);
+    if (!finiteState(next))
+      return {
+        states,
+        termination: { reason: "diverged", iteration, detail: "non_finite" },
+      };
+    // Keep the finite crossing state; only non-finite attempts stay out of plots.
     states.push(next);
+    if (next.error > ERROR_LIMIT)
+      return {
+        states,
+        termination: { reason: "diverged", iteration, detail: "error_limit" },
+      };
   }
-  return states;
+  return {
+    states,
+    termination: { reason: "iteration_limit", iteration: count },
+  };
+}
+export function trajectoryStatus(run: Trajectory, iteration: number) {
+  if (iteration < run.termination.iteration) return "运行中";
+  if (run.termination.reason === "iteration_limit")
+    return `达到迭代预算（k=${run.termination.iteration}），不代表已收敛`;
+  return `数值发散保护（k=${run.termination.iteration}）：${run.termination.detail === "non_finite" ? "下一状态非有限" : "参数误差超过 10⁵⁰"}；最后有限状态 k=${run.states.length - 1}`;
+}
+export function comparisonLimit(runs: Trajectory[]) {
+  return Math.max(0, ...runs.map((run) => run.termination.iteration));
 }
 export function seeded(seed: number) {
   let a = seed >>> 0;
