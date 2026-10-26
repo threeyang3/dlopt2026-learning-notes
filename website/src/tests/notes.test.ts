@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { headingSlug, resolveNoteHref } from "../components/Notes";
 
+// prettier-ignore
 describe("课程笔记章节链接", () => {
   it("为中文 Markdown 标题生成稳定的 ID", () => {
     expect(headingSlug("2. 凸性、平滑性与曲率")).toBe(
