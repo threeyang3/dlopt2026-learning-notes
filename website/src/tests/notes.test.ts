@@ -35,7 +35,7 @@ describe("课程笔记章节链接", () => {
       "```md",
       "### 代码块不应成为标题",
       "```",
-    ].join("\\n");
+    ].join("\n");
     const headings = buildHeadingIndex(markdown);
     expect(headings.map((heading) => heading.id)).toEqual([
       "第一章",
