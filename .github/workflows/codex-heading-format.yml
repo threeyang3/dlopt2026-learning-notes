@@ -1,0 +1,42 @@
+name: Temporary heading-fix formatter
+
+on:
+  push:
+    branches:
+      - codex/stabilize-learning-lab-2026-10-26
+    paths:
+      - .github/workflows/codex-heading-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format-heading-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: codex/stabilize-learning-lab-2026-10-26
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install locked dependencies
+        working-directory: website
+        run: npm ci
+      - name: Format changed sources using project Prettier
+        working-directory: website
+        run: |
+          npx prettier --write src/components/Notes.tsx src/tests/notes.test.ts e2e/core.spec.ts
+          npm run format:check
+      - name: Commit formatted files to candidate branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website/src/components/Notes.tsx website/src/tests/notes.test.ts website/e2e/core.spec.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "Format unique heading anchor fix"
+            git push origin HEAD:codex/stabilize-learning-lab-2026-10-26
+          fi
