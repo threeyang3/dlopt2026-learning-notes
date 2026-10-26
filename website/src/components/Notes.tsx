@@ -105,7 +105,8 @@ export function resolveNoteHref(href?: string, currentLectureId?: number) {
 
   const hashIndex = href.indexOf("#");
   const clean = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
-  const fragment = hashIndex >= 0 ? decodeFragment(href.slice(hashIndex + 1)) : "";
+  const fragment =
+    hashIndex >= 0 ? decodeFragment(href.slice(hashIndex + 1)) : "";
 
   if (!clean && currentLectureId && fragment)
     return lectureHref(currentLectureId, fragment);
