@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildHeadingIndex, headingSlug, resolveNoteHref } from "../components/Notes";
+import {
+  buildHeadingIndex,
+  headingSlug,
+  resolveNoteHref,
+} from "../components/Notes";
 import { noteText } from "../content/course";
 
 describe("课程笔记章节链接", () => {
@@ -67,5 +71,4 @@ describe("课程笔记章节链接", () => {
     expect(resolveNoteHref("#LoRA+", 14)).toBe("#lecture/14/lora-2");
     expect(resolveNoteHref("#lora-2", 14)).toBe("#lecture/14/lora-2");
   });
-
 });

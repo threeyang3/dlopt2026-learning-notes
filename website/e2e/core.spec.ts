@@ -269,10 +269,7 @@ test("课程导论展示四阶段，并明确第 1 讲的关联实验", async ({
   ).toHaveAttribute("href", "#intro");
 });
 
-
-test("第 14 讲 LoRA 与 LoRA+ 标题 ID 唯一，锚点精确导航", async ({
-  page,
-}) => {
+test("第 14 讲 LoRA 与 LoRA+ 标题 ID 唯一，锚点精确导航", async ({ page }) => {
   await page.goto("./#lecture/14");
   const original = page.locator('.note-content h3[id="lora"]');
   const plus = page.locator('.note-content h3[id="lora-2"]');
@@ -288,21 +285,15 @@ test("第 14 讲 LoRA 与 LoRA+ 标题 ID 唯一，锚点精确导航", async ({
   await page.goto("./#lecture/14/lora-2");
   await expect(plus).toBeVisible();
   await expect
-    .poll(() =>
-      plus.evaluate((element) => element.getBoundingClientRect().top),
-    )
+    .poll(() => plus.evaluate((element) => element.getBoundingClientRect().top))
     .toBeGreaterThanOrEqual(0);
   await expect
-    .poll(() =>
-      plus.evaluate((element) => element.getBoundingClientRect().top),
-    )
+    .poll(() => plus.evaluate((element) => element.getBoundingClientRect().top))
     .toBeLessThan(300);
 
   await page.reload();
   await expect(plus).toBeVisible();
   await expect
-    .poll(() =>
-      plus.evaluate((element) => element.getBoundingClientRect().top),
-    )
+    .poll(() => plus.evaluate((element) => element.getBoundingClientRect().top))
     .toBeLessThan(300);
 });
