@@ -35,8 +35,9 @@ function useRoute() {
   }, []);
   useEffect(() => {
     const anchor = routeAnchor(route);
-    if (anchor)
+    if (anchor) {
       document.getElementById(anchor)?.scrollIntoView({ block: "start" });
+    }
   }, [route]);
   return route;
 }
