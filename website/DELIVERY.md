@@ -29,12 +29,12 @@
 
 - TypeScript 检查通过，生产构建通过，格式检查通过。
 - 首次 Pages 部署运行 [#40367261435](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40367261435) 在生产子路径构建中通过格式检查、TypeScript 检查、33 项 Vitest、26 项桌面/移动端 Playwright E2E、原课程资料检查与部署步骤。
-- 本轮修整分支的最新网站 CI 运行 [#40373694916](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40373694916) 已通过：33 项 Vitest、28 项桌面/移动端 Playwright E2E（25.1 秒）、格式检查、TypeScript 检查、生产构建和原课程资料检查全部成功。新增回归覆盖窄屏下的全部实验入口、导航后自动关闭及 Escape 焦点返回。
+- 本轮修整分支的网站 CI 运行 [#40373694916](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40373694916) 已通过：33 项 Vitest、28 项桌面/移动端 Playwright E2E（25.1 秒）、格式检查、TypeScript 检查、生产构建和原课程资料检查全部成功。新增回归覆盖窄屏下的全部实验入口、导航后自动关闭及 Escape 焦点返回。
 - 合并后的 Pages 部署运行 [#40374106517](https://github.com/threeyang3/dlopt2026-learning-notes/actions/runs/40374106517) 已成功完成，发布提交为 `d9b885a1648ab8bf7c8a2a4d1e7ee21e657aab95`。生产子路径构建再次通过 33 项 Vitest、28 项桌面/移动端 Playwright E2E（23.8 秒）、格式检查、TypeScript 检查、生产构建、课程资料校验和部署步骤。
 - 当前部署日志仍报告环境 URL 为 `http://threeyang.top/dlopt2026-learning-notes/`。GitHub Actions 已确认部署成功，但本次工具环境无法独立访问该域名；HTTPS 强制跳转、DNS/证书和真实线上浏览器交互仍需在实际浏览器中确认。
 - 原资料校验通过：14讲、35份PDF、链接、数学定界符、SHA-256；原13组数值/内容回归通过；新增校验器范围测试2项通过。
 - 已查看桌面/手机首页和深色GD截图，修复共同初值标签重叠与深色曲线对比度。
-- 上述结果为本地验收；远端CI以GitHub Actions对应提交的实际运行结果为准。
+- 上述结果中，GitHub Actions 记录用于确认远端 CI 与 Pages 发布；真实自定义域名的可用性、HTTPS 和最终浏览器体验仍应以实际访问为准。
 
 ## 运行与部署
 
@@ -57,7 +57,7 @@ Pages 现已部署；`pages.yml` 在 `main` 分支有新提交时自动运行验
 1. 把SGD条件期望下降、球体平滑、低秩投影误差等证明编排为与GD同等完整的可复用逐步推导。
 2. 将GaLore状态换基、Shampoo/Muon完整更新做成小矩阵逐步执行器，以经过核对的具体实现版本为准。
 3. 扩充分布式拓扑、更多维度/可调k、误差反馈及真实通信模型；再独立核对更多PDF与论文原文。
-4. 在仓库Pages设置就绪后发布并实测线上hash入口、PDF及手机交互。
+4. 继续做线上回归：重点检查自定义域名 HTTPS、深层 hash 入口、PDF 资源及真实手机浏览器交互。
 
 ## 实际文件清单
 
@@ -120,4 +120,4 @@ website/vite.config.ts
 
 ## 审查修复补充（2026-10-26）
 
-本次集中处理审查的三项问题与CI格式检查，不新增算法。新增 `scripts/resources.ts` 与 `src/tests/resources.test.ts`，修改优化引擎/实验/画布、App键盘跳转、Vite资源配置、测试与两个工作流。具体行为与证据见 VERIFICATION 的审查修复验证。本地验收增加为28项单元/数值/内容测试和18项桌面/手机E2E；远端结果以本次修复提交的Actions运行记录为准。Pages仍需单独实际部署验收，源码上传不代表线上发布。
+本次集中处理审查的三项问题与 CI 格式检查，不新增算法。新增 `scripts/resources.ts` 与 `src/tests/resources.test.ts`，修改优化引擎/实验/画布、App 键盘跳转、Vite 资源配置、测试与两个工作流。具体行为与证据见 VERIFICATION 的审查修复验证。后续稳定化修整已补齐移动端完整导航、自动 Pages 发布和相关 E2E；当前版本已经完成远端 CI 与 Pages 发布，后续重点转为真实自定义域名、HTTPS 与线上设备回归。
