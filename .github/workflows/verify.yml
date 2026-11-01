@@ -1,25 +1,26 @@
 name: Verify course notes
-
 on:
   push:
   pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
-      - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          python-version: "3.12"
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
       - name: Check links, structure, math syntax, and checksums
         run: python3 tools/check_notes.py
       - name: Run numerical and content regression tests
         run: python3 tools/test_math_notes.py
+      - name: Check the note checker itself
+        run: python3 tools/test_check_notes.py

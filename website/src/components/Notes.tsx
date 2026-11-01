@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
+import { mathOptions } from "../security/math-options";
 import { course, noteText, resource } from "../content/course";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
@@ -146,7 +147,8 @@ export function Notes({ id }: { id: number }) {
     <article className="note-content">
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
-        rehypePlugins={[[rehypeKatex, { strict: "ignore" }]]}
+        skipHtml
+        rehypePlugins={[[rehypeKatex, mathOptions]]}
         components={{
           h1: renderHeading("h1"),
           h2: renderHeading("h2"),

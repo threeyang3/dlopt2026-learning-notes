@@ -1,4 +1,5 @@
 import katex from "katex";
+import { mathOptions } from "../security/math-options";
 export function MathFormula({
   tex,
   block = true,
@@ -13,7 +14,7 @@ export function MathFormula({
         __html: katex.renderToString(tex, {
           displayMode: block,
           throwOnError: true,
-          strict: "ignore",
+          ...mathOptions,
         }),
       }}
     />
