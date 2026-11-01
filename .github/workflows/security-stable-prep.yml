@@ -1,0 +1,42 @@
+name: Inspect stable-release dependencies
+on:
+  push:
+    branches: ['fix/security-stable-2026-11-01']
+    paths: ['.github/workflows/security-stable-prep.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Inspect advisories without executing dependency install scripts
+        working-directory: website
+        run: |
+          npm ci --ignore-scripts --no-audit
+          set +e
+          npm audit --json > /tmp/audit-all.json
+          ALL_STATUS=$?
+          npm audit --omit=dev --json > /tmp/audit-runtime.json
+          RUNTIME_STATUS=$?
+          npm outdated --json > /tmp/outdated.json
+          set -e
+          echo "all_audit_exit=$ALL_STATUS runtime_audit_exit=$RUNTIME_STATUS"
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          for (const name of ['audit-all', 'audit-runtime', 'outdated']) {
+            console.log('\n=== ' + name + ' ===');
+            console.log(fs.readFileSync('/tmp/' + name + '.json', 'utf8'));
+          }
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          console.log('\n=== exact direct versions ===');
+          for (const name of Object.keys({...pkg.dependencies, ...pkg.devDependencies}))
+            console.log(name + ' ' + lock.packages['node_modules/' + name].version);
+          JS
