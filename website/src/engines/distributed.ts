@@ -28,25 +28,41 @@ export interface Worker {
   updates: number;
   communicating: boolean;
 }
+export interface DistributedOptions {
+  curvatureSpread?: number;
+  noiseStd?: number;
+}
+export function localGradient(x: Vec, target: Vec, curvature: number): Vec {
+  return [curvature * (x[0] - target[0]), curvature * (x[1] - target[1])];
+}
 export function distributed(
   nodes: number,
   method: DistributedMethod,
   interval: number,
-  heterogeneity: number,
+  targetSpread: number,
   rate: number,
   mode: Compression,
   seed: number,
   steps = 100,
+  options: DistributedOptions = {},
 ) {
+  const curvatureSpread = options.curvatureSpread ?? 1;
+  const noiseStd = options.noiseStd ?? 0.15;
+  if (
+    ![targetSpread, curvatureSpread, noiseStd].every(
+      (x) => Number.isFinite(x) && x >= 0,
+    )
+  )
+    throw Error("目标分散、曲率差异与噪声标准差必须有限且非负");
   const rng = seeded(seed);
   let workers: Worker[] = Array.from({ length: nodes }, (_, i) => ({
     x: [-3, 2],
     gradient: [0, 0],
     target: [
-      heterogeneity * Math.cos((i * 2 * Math.PI) / nodes),
-      heterogeneity * Math.sin((i * 2 * Math.PI) / nodes),
+      targetSpread * Math.cos((i * 2 * Math.PI) / nodes),
+      targetSpread * Math.sin((i * 2 * Math.PI) / nodes),
     ],
-    curvature: 1 + i / nodes,
+    curvature: 1 + (curvatureSpread * i) / nodes,
     updates: 0,
     communicating: false,
   }));
@@ -84,13 +100,10 @@ export function distributed(
   };
   const states = [snapshot()];
   for (let t = 1; t <= steps; t++) {
-    const gradients = workers.map(
-      (w) =>
-        [
-          w.curvature * (w.x[0] - w.target[0]) + 0.15 * normal(rng),
-          w.curvature * (w.x[1] - w.target[1]) + 0.15 * normal(rng),
-        ] as Vec,
-    );
+    const gradients = workers.map((w): Vec => {
+      const g = localGradient(w.x, w.target, w.curvature);
+      return [g[0] + noiseStd * normal(rng), g[1] + noiseStd * normal(rng)];
+    });
     const comm = method !== "Local SGD" || t % interval === 0;
     if (method === "PSGD") {
       const g = mean(gradients.map((g) => compress(g, mode, 1, rng))),

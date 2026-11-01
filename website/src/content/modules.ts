@@ -75,9 +75,10 @@ export const modules: Record<string, LearningModule> = {
     goal: "区分梯度聚合、参数混合与本地多步更新，核算通信账本。",
     prerequisites: "SGD、均匀平均、矩阵混合",
     conditions:
-      "二维异质强凸二次目标；等权全参与；独立噪声；DSGD 使用先更新后环混合。",
+      "二维强凸二次目标；最优点分散、曲率差异和独立噪声分别可控；等权全参与；DSGD 先更新后环混合。",
     misconception: "连通图不意味着一次全局平均；每轮压缩不等于总通信更少。",
-    experiment: "对比 Local K=1 与 PSGD，再增大 K 和异质性观察共识误差。",
+    experiment:
+      "先用同质无噪声对照检查节点一致性，再分别增大最优点分散、曲率差异和噪声；比较 Local K=1 与 PSGD。",
     status: "partially_verified",
     evidence:
       "K=1 等价、DSGD 均值、非零共识、Random-k 经验无偏与字节累加有测试；未测真实网络。",

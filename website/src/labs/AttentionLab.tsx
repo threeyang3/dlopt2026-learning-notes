@@ -1,11 +1,6 @@
 import { useMemo, useState } from "react";
-import {
-  attention,
-  multiply,
-  onlineAttention,
-  type Mat,
-} from "../engines/matrix";
-import { seeded } from "../engines/optimization";
+import { onlineAttention } from "../engines/matrix";
+import { createAttentionDemo } from "../engines/attention-demo";
 import { MatrixView } from "../components/Matrix";
 import {
   Slider,
@@ -19,33 +14,15 @@ import { Quiz } from "../components/Quiz";
 import { Sources } from "../components/Sources";
 export function AttentionLab({ flash = false }: { flash?: boolean }) {
   const [seed, setSeed] = useState(42),
+    [inputSeed, setInputSeed] = useState(42),
     [tokens, setTokens] = useState(4),
     [causal, setCausal] = useState(true),
     [block, setBlock] = useState(2),
     [query, setQuery] = useState(0);
-  const d = useMemo(() => {
-    const rng = seeded(seed),
-      matrix = (m: number, n: number): Mat =>
-        Array.from({ length: m }, () =>
-          Array.from({ length: n }, () => 2 * rng() - 1),
-        ),
-      X = matrix(tokens, 4),
-      heads = Array.from({ length: 2 }, () => {
-        const WQ = matrix(4, 2),
-          WK = matrix(4, 2),
-          WV = matrix(4, 2),
-          Q = multiply(X, WQ),
-          K = multiply(X, WK),
-          V = multiply(X, WV);
-        return { WQ, WK, WV, Q, K, V, ...attention(Q, K, V, causal) };
-      });
-    const concat = heads[0].output.map((row, i) => [
-        ...row,
-        ...heads[1].output[i],
-      ]),
-      WO = matrix(4, 4);
-    return { X, heads, concat, WO, output: multiply(concat, WO) };
-  }, [seed, tokens, causal]);
+  const d = useMemo(
+    () => createAttentionDemo(tokens, seed, causal, inputSeed),
+    [seed, inputSeed, tokens, causal],
+  );
   const row = Math.min(query, tokens - 1),
     K = causal ? d.heads[0].K.slice(0, row + 1) : d.heads[0].K,
     V = causal ? d.heads[0].V.slice(0, row + 1) : d.heads[0].V,
@@ -93,6 +70,13 @@ export function AttentionLab({ flash = false }: { flash?: boolean }) {
               value={seed}
               onChange={(n) => change(() => setSeed(n))}
             />
+            <Slider
+              label="输入序列种子"
+              min={1}
+              max={100}
+              value={inputSeed}
+              onChange={(n) => change(() => setInputSeed(n))}
+            />
             <label className="check">
               <input
                 type="checkbox"
@@ -136,7 +120,9 @@ export function AttentionLab({ flash = false }: { flash?: boolean }) {
             </p>
             <Playback player={player} max={max} />
             <p className="muted">
-              确定种子直接映射到实际矩阵；播放仅改变显示阶段，不改变计算结果。双头宽度各
+              权重与输入使用独立随机流；只改变 token
+              数时，权重与已有输入前缀保持不变。因果模式下，追加未来 token
+              不改变已有位置输出；双向注意力则无此保证。播放仅改变显示阶段。双头宽度各
               2，模型宽度 4；不包含位置编码、残差、归一化或训练。
             </p>
           </div>
@@ -230,7 +216,12 @@ export function AttentionLab({ flash = false }: { flash?: boolean }) {
                 <MatrixView name="头 2 输出" data={d.heads[1].output} />
                 <MatrixView name="拼接" data={d.concat} />
                 <MatrixView name="WO" data={d.WO} />
-                <MatrixView name="最终输出" data={d.output} />
+                <div
+                  data-testid="attention-output"
+                  data-output={JSON.stringify(d.output)}
+                >
+                  <MatrixView name="最终输出" data={d.output} />
+                </div>
               </div>
             )}
             <MathFormula
