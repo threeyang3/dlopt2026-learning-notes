@@ -2,7 +2,7 @@ name: Prepare reviewed dependency lock
 on:
   push:
     branches: ['fix/security-stable-2026-11-01']
-    paths: ['.github/workflows/security-stable-prep.yml']
+    paths: ['.github/workflows/security-stable-prep.yml', 'website/package.json']
 permissions:
   contents: write
 jobs:
@@ -20,6 +20,7 @@ jobs:
       - name: Resolve only the approved manifest and check advisories
         working-directory: website
         run: |
+          mv package-lock.json /tmp/baseline-package-lock.json
           npm install --package-lock-only --ignore-scripts --no-audit
           npm audit --audit-level=low
           npm audit --omit=dev --audit-level=low
