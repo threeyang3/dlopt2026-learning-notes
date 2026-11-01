@@ -13,8 +13,15 @@ describe("安全渲染与依赖一致性", () => {
   it("所有 KaTeX 副本与直接指定的修补版本一致", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8"));
     const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+    // @types/katex has its own version; only runtime copies must match.
+    const runtimePath = /(?:^|\/)node_modules\/katex$/;
+    expect(runtimePath.test("node_modules/@types/katex")).toBe(false);
+    expect(runtimePath.test("node_modules/katex")).toBe(true);
+    expect(
+      runtimePath.test("node_modules/rehype-katex/node_modules/katex"),
+    ).toBe(true);
     const entries = Object.entries(lock.packages).filter(([path]) =>
-      path.endsWith("/katex"),
+      runtimePath.test(path),
     );
     expect(entries.length).toBeGreaterThan(0);
     for (const [, value] of entries)
