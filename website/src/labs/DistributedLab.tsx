@@ -20,7 +20,9 @@ export function DistributedLab() {
   const [nodes, setNodes] = useState(4),
     [method, setMethod] = useState<DistributedMethod>("Local SGD"),
     [interval, setInterval] = useState(5),
-    [heterogeneity, setHeterogeneity] = useState(2),
+    [targetSpread, setTargetSpread] = useState(2),
+    [curvatureSpread, setCurvatureSpread] = useState(1),
+    [noiseStd, setNoiseStd] = useState(0.15),
     [compression, setCompression] = useState<Compression>("无压缩"),
     [rate, setRate] = useState(0.1),
     [seed, setSeed] = useState(42);
@@ -30,12 +32,24 @@ export function DistributedLab() {
           nodes,
           method,
           interval,
-          heterogeneity,
+          targetSpread,
           rate,
           compression,
           seed,
+          100,
+          { curvatureSpread, noiseStd },
         ),
-      [nodes, method, interval, heterogeneity, rate, compression, seed],
+      [
+        nodes,
+        method,
+        interval,
+        targetSpread,
+        curvatureSpread,
+        noiseStd,
+        rate,
+        compression,
+        seed,
+      ],
     ),
     player = usePlayback(100),
     s = states[player.index];
@@ -65,7 +79,7 @@ export function DistributedLab() {
         <p>Lecture 12</p>
         <h1>分布式优化：走多远，再通信？</h1>
         <p>
-          每个节点拥有不同曲率与最优点。真实执行本地更新、聚合与带索引的压缩通信。
+          分别控制本地最优点、曲率差异与采样噪声。真实执行本地更新、聚合与带索引的压缩通信。
         </p>
       </div>
       <div className="experiment">
@@ -145,13 +159,44 @@ export function DistributedLab() {
             onChange={(n) => change(() => setInterval(n))}
           />
           <Slider
-            label="数据异质性"
+            label="本地最优点分散程度"
             min={0}
             max={4}
             step={0.1}
-            value={heterogeneity}
-            onChange={(n) => change(() => setHeterogeneity(n))}
+            value={targetSpread}
+            onChange={(n) => change(() => setTargetSpread(n))}
           />
+          <Slider
+            label="曲率差异"
+            min={0}
+            max={2}
+            step={0.1}
+            value={curvatureSpread}
+            onChange={(n) => change(() => setCurvatureSpread(n))}
+          />
+          <Slider
+            label="每坐标梯度噪声标准差"
+            min={0}
+            max={0.5}
+            step={0.01}
+            value={noiseStd}
+            onChange={(n) => change(() => setNoiseStd(n))}
+          />
+          <button
+            onClick={() =>
+              change(() => {
+                setTargetSpread(0);
+                setCurvatureSpread(0);
+                setNoiseStd(0);
+              })
+            }
+          >
+            同质无噪声对照
+          </button>
+          <p className="notice">
+            同质目标要求最优点分散与曲率差异都为零；共同最优点不等于相同目标。
+            同质目标下独立采样噪声仍可能产生不同随机梯度，对照按钮同时关闭噪声。
+          </p>
           <Slider
             label="节点学习率"
             min={0.01}
@@ -221,7 +266,12 @@ export function DistributedLab() {
           </thead>
           <tbody>
             {s.workers.map((w, i) => (
-              <tr key={i}>
+              <tr
+                key={i}
+                data-testid={`worker-${i}`}
+                data-gradient={JSON.stringify(w.gradient)}
+                data-parameters={JSON.stringify(w.x)}
+              >
                 <td>{i + 1}</td>
                 <td>{vector(w.x)}</td>
                 <td>{vector(w.gradient)}</td>
@@ -243,7 +293,8 @@ export function DistributedLab() {
         <p>
           本页 DSGD 先更新再混合，环上自己与左右邻居各占 1/3，W
           对称双随机。Local SGD 每 K 步均匀平均参数；PSGD
-          在共同参数上平均（可压缩的）随机梯度。独立噪声每坐标标准差 0.15。
+          在共同参数上平均（可压缩的）随机梯度。曲率 aᵢ = 1 + δ·i/n，i 从 0
+          起，δ = {curvatureSpread}；独立噪声每坐标标准差为 {noiseStd}。
         </p>
         <MathFormula
           tex={String.raw`[C(x)]_i=\frac dk x_i\mathbb1\{i\in S\},\quad\mathbb E[C(x)]=x,\quad d=2,\ k=1`}

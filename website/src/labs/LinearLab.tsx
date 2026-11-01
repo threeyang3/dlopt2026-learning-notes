@@ -153,7 +153,7 @@ export function LinearLab({ subspace = false }: { subspace?: boolean }) {
             options: ["PG", "PᵀG 为 r×2，再乘 P 回映", "GP 为 2×r"],
             answer: 1,
             explanation:
-              "左投影先把 3 维行空间压缩成 r 维。P 的列正交保证 PPᵀ 是正交投影。",
+              "G 的每个列向量属于三维环境空间 R³；左乘 Pᵀ 得到子空间中的 r 维坐标，再左乘 P 回映。G 的行向量属于 R²，列空间维数至多为 2；P 的列正交保证 PPᵀ 是正交投影。",
           },
         ]}
       />

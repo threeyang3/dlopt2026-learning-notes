@@ -10,9 +10,11 @@ export function ZerothLab() {
     [exponent, setExponent] = useState(-2),
     [noise, setNoise] = useState(0),
     [seed, setSeed] = useState(42),
-    [x, setX] = useState(1);
+    [x, setX] = useState(1),
+    [coordinate, setCoordinate] = useState(0);
   const tau = 10 ** exponent,
-    d = estimate([x, 0.7], tau, method, seed, noise);
+    d = estimate([x, 0.7], tau, method, seed, noise),
+    pair = d.details[Math.min(coordinate, d.details.length - 1)];
   return (
     <>
       <div className="lab-intro">
@@ -27,7 +29,10 @@ export function ZerothLab() {
             <select
               aria-label="零阶估计器"
               value={method}
-              onChange={(e) => setMethod(e.target.value as Estimator)}
+              onChange={(e) => {
+                setMethod(e.target.value as Estimator);
+                setCoordinate(0);
+              }}
             >
               {[
                 "坐标前向",
@@ -77,15 +82,42 @@ export function ZerothLab() {
         </div>
         <div>
           <h2>本次查询与方向</h2>
+          {d.details.length > 1 && (
+            <label>
+              查看坐标查询
+              <select
+                aria-label="查看坐标查询"
+                value={coordinate}
+                onChange={(e) => setCoordinate(Number(e.target.value))}
+              >
+                <option value={0}>坐标 x₁</option>
+                <option value={1}>坐标 x₂</option>
+              </select>
+            </label>
+          )}
+          <p
+            data-testid="query-pair"
+            data-direction={JSON.stringify(pair.direction)}
+            data-plus={JSON.stringify(pair.plus)}
+            data-minus={JSON.stringify(pair.minus)}
+          >
+            {pair.coordinate === null
+              ? "随机方向 u"
+              : `当前坐标方向 e${pair.coordinate + 1}`}
+            ：{vector(pair.direction)}
+          </p>
           <dl>
             {[
-              ["正扰动点", vector(d.plus)],
-              ["负扰动 / 基准点", vector(d.minus)],
-              ["f₊ / f₋", vector([d.fp, d.fm])],
-              ["函数差", fmt(d.fp - d.fm)],
+              ["正扰动点", vector(pair.plus)],
+              ["负扰动 / 基准点", vector(pair.minus)],
+              ["f₊ / f₋", vector([pair.fPlus, pair.fMinus])],
+              ["函数差", fmt(pair.fPlus - pair.fMinus)],
               ["估计梯度", vector(d.g)],
               ["解析梯度", vector(d.truth)],
-              ["随机方向 u", vector(d.u)],
+              ["差分分母", fmt(pair.denominator)],
+              ["缩放因子", fmt(pair.multiplier)],
+              ["差分系数", fmt(pair.coefficient)],
+              ["本组方向贡献", vector(pair.contribution)],
             ].map(([k, v]) => (
               <div style={{ display: "contents" }} key={k}>
                 <dt>{k}</dt>
@@ -94,15 +126,15 @@ export function ZerothLab() {
             ))}
           </dl>
           <p className="muted">
-            坐标法显示最后一个坐标的扰动查询。噪声来自每次查询独立生成的高斯值，另含
+            坐标法可逐项查看查询，完整梯度由各坐标贡献相加。前向差分复用同一次基准查询；各次实际查询使用独立高斯噪声，因此共享基准会使坐标估计误差相关。另含
             JavaScript 浮点舍入。固定种子便于隔离 τ 的影响。
           </p>
         </div>
       </div>
       <QueryPlot
         x={[x, 0.7]}
-        plus={d.plus}
-        minus={d.minus}
+        plus={pair.plus}
+        minus={pair.minus}
         estimated={d.g}
         truth={d.truth}
       />
