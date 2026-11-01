@@ -11,7 +11,8 @@ export function createAttentionDemo(
   if (!Number.isInteger(tokens) || tokens < 1)
     throw Error("Token 数量必须是正整数");
   const weightRng = seeded(weightSeed);
-  const inputRng = seeded(inputSeed);
+  // Separate streams even when both UI seed controls have the same value.
+  const inputRng = seeded(inputSeed ^ 0x9e3779b9);
   const matrix = (rows: number, cols: number, rng: () => number): Mat =>
     Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => 2 * rng() - 1),
