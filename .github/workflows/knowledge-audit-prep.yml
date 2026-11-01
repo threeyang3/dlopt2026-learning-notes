@@ -1,0 +1,49 @@
+name: Prepare knowledge-audit fixes
+on:
+  push:
+    branches: [fix/knowledge-audit-2026-11-01]
+    paths:
+      - tools/apply_knowledge_audit.py
+      - .github/workflows/knowledge-audit-prep.yml
+permissions:
+  contents: write
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/fix/knowledge-audit-2026-11-01'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/knowledge-audit-2026-11-01
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+        working-directory: website
+      - name: Apply guarded changes
+        run: python3 tools/apply_knowledge_audit.py
+      - name: Format changed code with the locked toolchain
+        working-directory: website
+        run: npx prettier --write src/engines/attention-demo.ts src/engines/zeroth.ts src/engines/distributed.ts src/labs/AttentionLab.tsx src/labs/ZerothLab.tsx src/labs/DistributedLab.tsx src/labs/LinearLab.tsx src/content/modules.ts src/tests/knowledge-regressions.test.ts e2e/knowledge.spec.ts
+      - name: Validate code
+        working-directory: website
+        run: |
+          npm run format:check
+          npm run typecheck
+          npm test
+      - name: Validate original notes and materials
+        run: |
+          python3 tools/check_notes.py
+          python3 tools/test_math_notes.py
+          python3 tools/test_check_notes.py
+      - name: Commit only reviewed candidate changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add notes/ website/src/ website/e2e/ website/VERIFICATION.md REVISION_NOTES.md
+          git diff --cached --check
+          git commit -m 'Fix audited knowledge claims and experiment controls'
+          git push origin HEAD:refs/heads/fix/knowledge-audit-2026-11-01
