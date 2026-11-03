@@ -49,6 +49,12 @@ test("嵌入查表、键盘页签和小屏导航可用", async ({ page, isMobile
       .getByRole("link", { name: "语言模型与 RNN", exact: true })
       .click();
   }
+  await expect(
+    page.getByRole("heading", {
+      name: "嵌入矩阵 × one-hot = 取出对应列",
+      exact: true,
+    }),
+  ).toBeVisible();
   await expect(page.getByTestId("embedding-result")).toHaveAttribute(
     "data-vector",
     "[0,-0.01,0.03,0.95]",
@@ -72,11 +78,9 @@ test("嵌入查表、键盘页签和小屏导航可用", async ({ page, isMobile
     await page.getByRole("tab", { name: title, exact: true }).click();
     await expect(page.locator(".katex-error")).toHaveCount(0);
     expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
+      await page.evaluate(() => document.documentElement.scrollWidth),
       title,
-    ).toBe(true);
+    ).toBeLessThanOrEqual(page.viewportSize()!.width);
   }
   await page.screenshot({
     path: info.outputPath("language-model-gradient.png"),
