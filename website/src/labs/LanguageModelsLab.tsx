@@ -127,7 +127,7 @@ function EmbeddingPanel() {
   const oneHot = embeddingWords.map((_, i) => [i === first ? 1 : 0]);
   return (
     <>
-      <h2>one-hot × 嵌入矩阵 = 取出对应列</h2>
+      <h2>嵌入矩阵 × one-hot = 取出对应列</h2>
       <p>
         PDF p.4–10；下面的 4×6 数字来自第 6
         页人工示意表，不是训练结果。坐标依次为 {embeddingAxes.join("、")}。

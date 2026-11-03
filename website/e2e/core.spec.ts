@@ -21,11 +21,10 @@ test("GD 单步、回退、改参和自测", async ({ page }) => {
   await page.getByRole("button", { name: "检查答案 1", exact: true }).click();
   await expect(page.locator("p[role=status]")).toContainText("回答正确");
   expect(errors).toEqual([]);
+  // Mobile overflow can inflate innerWidth; compare with the configured viewport.
   expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(page.viewportSize()!.width);
 });
 test("课程地图和原始笔记可读、进度保留", async ({ page }) => {
   await page.goto("./#map");
@@ -65,11 +64,9 @@ test("所有实验与 14 讲公式可渲染，无运行错误或横向溢出", a
     await expect(page.locator("main h1").first()).toBeVisible();
     await expect(page.locator(".katex-error")).toHaveCount(0);
     expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
+      await page.evaluate(() => document.documentElement.scrollWidth),
       route + " 溢出",
-    ).toBe(true);
+    ).toBeLessThanOrEqual(page.viewportSize()!.width);
     if (route === "home" || route === "gd")
       await page.screenshot({
         path: info.outputPath(route + ".png"),
