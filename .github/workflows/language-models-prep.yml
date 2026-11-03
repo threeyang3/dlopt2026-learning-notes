@@ -1,0 +1,58 @@
+name: Prepare language-model supplement
+on:
+  push:
+    branches: ['feat/language-models-2026-11-03']
+    paths: ['.github/workflows/language-models-prep.yml']
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Prepare review workspace without dependency lifecycle scripts
+        run: |
+          cd website
+          npm ci --ignore-scripts --no-audit
+          cd ..
+          git ls-files | grep -v '^materials/' > /tmp/workspace-files.txt
+          printf '%s\n' website/node_modules >> /tmp/workspace-files.txt
+          tar -czf /tmp/language-model-workspace.tgz -T /tmp/workspace-files.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: language-model-workspace
+          path: /tmp/language-model-workspace.tgz
+          retention-days: 1
+  import-pdf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Import only the byte-identical user-requested PDF
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+        with:
+          script: |
+            const crypto = require('node:crypto');
+            const branch = 'feat/language-models-2026-11-03';
+            if (context.ref !== 'refs/heads/' + branch) throw Error('Unexpected branch');
+            const response = await fetch('https://raw.githubusercontent.com/kunyuan827/kunyuan827.github.io/master/teaching/DLOpt2024/03_langmodel.pdf');
+            if (!response.ok) throw Error('Source download failed: ' + response.status);
+            const data = Buffer.from(await response.arrayBuffer());
+            const sha256 = crypto.createHash('sha256').update(data).digest('hex');
+            if (data.length !== 7225650 || sha256 !== 'ca4316886f225f3324b81d99a3e0ee97efd8ed42ca6bbe73fd158478d8441419') throw Error('Uploaded PDF identity mismatch');
+            const { owner, repo } = context.repo;
+            const path = 'materials/Supplement-Language-Models/03_langmodel.pdf';
+            const ref = await github.rest.git.getRef({owner, repo, ref: 'heads/' + branch});
+            if (ref.data.object.sha !== context.sha) throw Error('Candidate branch moved; review before retrying');
+            const result = await github.rest.repos.createOrUpdateFileContents({owner, repo, path, branch, message: 'Add original 56-page language-model slides verified against uploaded PDF', content: data.toString('base64')});
+            core.info('PDF SHA-256: ' + sha256);
+            core.info('Imported blob: ' + result.data.content.sha);
+            core.info('Candidate commit: ' + result.data.commit.sha);
