@@ -1,11 +1,13 @@
 import { cpSync, mkdirSync, realpathSync, statSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import course from "../src/content/course.json";
+import supplements from "../src/content/supplements.json";
 
 // Explicit tracked publication policy. Adding a root Markdown file does not publish it.
 export const publishedResources: readonly string[] = Object.freeze([
   ...new Set([
     ...course.flatMap((lecture) => [lecture.note, ...lecture.pdfs]),
+    ...supplements.flatMap((entry) => [entry.note, entry.pdf]),
     "notes/README.md",
     "notes/COURSE_SCOPE.md",
     "notes/NOTE_STANDARD.md",

@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import { mathOptions } from "../security/math-options";
 import { course, noteText, resource } from "../content/course";
+import supplements from "../content/supplements.json";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -90,20 +91,34 @@ function decodeFragment(value: string) {
   }
 }
 
-function lectureHref(id: number, anchor?: string) {
-  const base = "#lecture/" + id;
+function documentHref(slug: string, anchor?: string) {
+  const lecture = course.find((entry) => entry.slug === slug);
+  const supplement = supplements.find((entry) => entry.slug === slug);
+  const base = lecture
+    ? "#lecture/" + lecture.id
+    : supplement
+      ? "#supplement/" + supplement.id
+      : undefined;
+  if (!base) return undefined;
   if (!anchor) return base;
   const name = decodeFragment(anchor).trim();
-  const lecture = course.find((entry) => entry.id === id);
-  const headings = lecture ? buildHeadingIndex(noteText(lecture.slug)) : [];
+  const headings = buildHeadingIndex(noteText(slug));
   const idForTitle = headings.find((entry) => entry.title === name)?.id;
   const idForExistingSlug = headings.find((entry) => entry.id === name)?.id;
   const idForSlug = headings.find(
     (entry) => headingSlug(entry.title) === headingSlug(name),
   )?.id;
-  const headingId =
-    idForTitle ?? idForExistingSlug ?? idForSlug ?? headingSlug(name);
-  return base + "/" + encodeURIComponent(headingId);
+  return (
+    base +
+    "/" +
+    encodeURIComponent(
+      idForTitle ?? idForExistingSlug ?? idForSlug ?? headingSlug(name),
+    )
+  );
+}
+function lectureHref(id: number, anchor?: string) {
+  const lecture = course.find((entry) => entry.id === id);
+  return lecture ? documentHref(lecture.slug, anchor) : undefined;
 }
 
 function headingRenderer(tag: HeadingTag, byLine: Map<number, string>) {
@@ -129,13 +144,25 @@ function headingRenderer(tag: HeadingTag, byLine: Map<number, string>) {
 
 export function Notes({ id }: { id: number }) {
   const lecture = course.find((l) => l.id === id)!;
-  const text = noteText(lecture.slug).replace(
+  return <NoteDocument slug={lecture.slug} lectureId={id} />;
+}
+export function SupplementNotes({ id }: { id: string }) {
+  const entry = supplements.find((s) => s.id === id);
+  return entry ? <NoteDocument slug={entry.slug} /> : null;
+}
+function NoteDocument({
+  slug,
+  lectureId,
+}: {
+  slug: string;
+  lectureId?: number;
+}) {
+  const text = noteText(slug).replace(
     /\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g,
     (_, name, anchor, label) => {
-      const other = course.find((l) => l.slug === name);
-      const target = other
-        ? lectureHref(other.id, anchor)
-        : name + ".md" + (anchor ? "#" + encodeURIComponent(anchor) : "");
+      const target =
+        documentHref(name, anchor) ??
+        name + ".md" + (anchor ? "#" + encodeURIComponent(anchor) : "");
       return `[${label || anchor || name}](${target})`;
     },
   );
@@ -157,7 +184,7 @@ export function Notes({ id }: { id: number }) {
           h5: renderHeading("h5"),
           h6: renderHeading("h6"),
           a: ({ href, children }) => (
-            <a href={resolveNoteHref(href, id)}>{children}</a>
+            <a href={resolveNoteHref(href, lectureId, slug)}>{children}</a>
           ),
         }}
       >
@@ -167,9 +194,13 @@ export function Notes({ id }: { id: number }) {
   );
 }
 
-export function resolveNoteHref(href?: string, currentLectureId?: number) {
+export function resolveNoteHref(
+  href?: string,
+  currentLectureId?: number,
+  currentSlug?: string,
+) {
   if (!href) return undefined;
-  if (/^(https?:|mailto:|#lecture\/)/.test(href)) return href;
+  if (/^(https?:|mailto:|#lecture\/|#supplement\/)/.test(href)) return href;
 
   const hashIndex = href.indexOf("#");
   const clean = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
@@ -179,10 +210,12 @@ export function resolveNoteHref(href?: string, currentLectureId?: number) {
   if (!clean && currentLectureId && fragment)
     return lectureHref(currentLectureId, fragment);
 
-  const lecture = course.find(
+  if (!clean && currentSlug && fragment)
+    return documentHref(currentSlug, fragment);
+  const document = [...course, ...supplements].find(
     (l) => clean === l.slug + ".md" || clean.endsWith("/" + l.slug + ".md"),
   );
-  if (lecture) return lectureHref(lecture.id, fragment || undefined);
+  if (document) return documentHref(document.slug, fragment || undefined);
 
   const path = new URL(href, "https://course.invalid/notes/current.md");
   return resource(path.pathname.slice(1)) + path.hash;

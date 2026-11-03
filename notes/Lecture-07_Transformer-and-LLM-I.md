@@ -139,3 +139,5 @@ Attention 能直接连接任意两 token，并行度高，但稠密核心计算�
 
 下一讲把这些维度变成参数、FLOPs 和显存公式：[[Lecture-08_Transformer-and-LLM-II]]。
 
+
+补充先修阅读：[[Supplement-Language-Models]]（词嵌入、n-gram、RNN 与 next-token 交叉熵；不改变本讲课程定位）。

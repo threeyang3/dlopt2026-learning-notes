@@ -127,3 +127,5 @@ $$
 
 下一讲从最基本的导数与曲率开始：[[Lecture-02_Linear-Algebra-I]]。
 
+
+补充先修阅读：[[Supplement-Language-Models]]（词嵌入、n-gram、RNN 与 next-token 交叉熵；不改变本讲课程定位）。

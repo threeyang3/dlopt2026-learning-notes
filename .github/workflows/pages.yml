@@ -33,6 +33,10 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
+      - name: Install CJK fonts for readable Chinese browser evidence
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
       - run: npx --no-install playwright install chromium
       - run: npm run e2e
         env:

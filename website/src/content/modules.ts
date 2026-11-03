@@ -83,6 +83,20 @@ export const modules: Record<string, LearningModule> = {
     evidence:
       "K=1 等价、DSGD 均值、非零共识、Random-k 经验无偏与字节累加有测试；未测真实网络。",
   },
+  "language-models": {
+    lectures: [1, 3, 4, 7],
+    goal: "从 one-hot 查表、n-gram 计数走到共享状态、next-token 损失与梯度传播。",
+    prerequisites: "矩阵乘法、条件概率、softmax、链式法则",
+    conditions:
+      "补充课件 56 页；人工示意 embedding、自建 12 句语料、7 词/2 状态的单向单层 tanh RNN。",
+    misconception:
+      "可处理长序列不等于可靠记住长距离；参数共享不意味着激活内存不增长。",
+    experiment:
+      "检查未见上下文；区分播放和训练；比较零初态与饱和轨迹的导数连乘。",
+    status: "partially_verified",
+    evidence:
+      "原件页序、计数边界、完整 BPTT 有限差分和浏览器操作有测试；平滑与梯度推导标为补充，不声称实现预训练 LLM、双向或多层 RNN。",
+  },
   attention: {
     lectures: [7],
     goal: "逐步计算 Q/K/V、mask、softmax、双头拼接和输出投影。",

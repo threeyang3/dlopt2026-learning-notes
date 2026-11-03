@@ -941,3 +941,61 @@ html[data-theme="dark"] {
     grid-template-columns: 1fr;
   }
 }
+
+.lm-panel,
+.supplement-catalog {
+  min-width: 0;
+}
+.lm-tabs,
+.lm-controls,
+.lm-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+.lm-tabs [aria-selected="true"],
+.lm-timeline [aria-current="step"] {
+  background: var(--soft);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.lm-controls label {
+  display: grid;
+  gap: 6px;
+}
+.lm-panel select {
+  max-width: 100%;
+}
+.lm-timeline {
+  list-style: none;
+  padding: 0;
+}
+.lm-scroll {
+  max-width: 100%;
+  overflow: auto;
+  margin: 16px 0;
+}
+.lm-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.lm-scroll th,
+.lm-scroll td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.lm-scroll caption {
+  text-align: left;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.lm-panel p,
+.supplement-catalog p {
+  overflow-wrap: anywhere;
+}
+.lm-panel .notice {
+  margin: 16px 0;
+}

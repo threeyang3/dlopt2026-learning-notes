@@ -121,3 +121,6 @@ website/vite.config.ts
 ## 审查修复补充（2026-10-26）
 
 本次集中处理审查的三项问题与 CI 格式检查，不新增算法。新增 `scripts/resources.ts` 与 `src/tests/resources.test.ts`，修改优化引擎/实验/画布、App 键盘跳转、Vite 资源配置、测试与两个工作流。具体行为与证据见 VERIFICATION 的审查修复验证。后续稳定化修整已补齐移动端完整导航、自动 Pages 发布和相关 E2E；当前版本已经完成远端 CI 与 Pages 发布，后续重点转为真实自定义域名、HTTPS 与线上设备回归。
+## 1.1.0 内容扩展（2026-11-03）
+
+以上 14 讲/35 PDF 的数字是历史基线。本版另外增加 1 个用户提供的语言模型补充单元（56 页 PDF 与学习笔记），合计 14 篇核心笔记 + 1 篇补充笔记、36 份 PDF。新增实验入口 `#language-models` 与阅读入口 `#supplement/language-models`。保留原编号、进度、依赖安全策略以及所有既有数学回归；原件哈希及本版新增验证范围见 VERIFICATION.md 与 source_manifest.tsv。

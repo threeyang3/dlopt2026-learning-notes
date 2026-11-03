@@ -1,0 +1,17 @@
+[
+  {
+    "id": "language-models",
+    "slug": "Supplement-Language-Models",
+    "title": "语言模型基础：词嵌入、n-gram 与 RNN",
+    "note": "notes/Supplement-Language-Models.md",
+    "pdf": "materials/Supplement-Language-Models/03_langmodel.pdf",
+    "pages": 56,
+    "bytes": 7225650,
+    "sha256": "ca4316886f225f3324b81d99a3e0ee97efd8ed42ca6bbe73fd158478d8441419",
+    "sourceUrl": "https://raw.githubusercontent.com/kunyuan827/kunyuan827.github.io/master/teaching/DLOpt2024/03_langmodel.pdf",
+    "lab": "language-models",
+    "beforeLecture": 7,
+    "status": "partially_verified",
+    "evidence": "用户补充的 56 页课件，附件与作者公开原件字节一致。原 PDF 保持不变；笔记区分课件主线、推导补充与勘误。实验使用教学语料和小模型，不是预训练 LLM。"
+  }
+]

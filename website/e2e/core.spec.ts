@@ -56,6 +56,8 @@ test("所有实验与 14 讲公式可渲染，无运行错误或横向溢出", a
     "precision",
     "inference",
     "resources",
+    "language-models",
+    "supplement/language-models",
     "sources",
     ...Array.from({ length: 14 }, (_, i) => "lecture/" + (i + 1)),
   ]) {
