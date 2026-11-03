@@ -1,21 +1,116 @@
-name: Prepare language-model materials validation
+name: Validate language-model supplement candidate
 on:
   push:
     branches: ['feat/language-models-2026-11-03']
-    paths: ['.github/workflows/language-models-prep.yml']
+    paths:
+      - '.github/workflows/language-models-prep.yml'
+      - '.github/integrate-language-models.py'
+      - 'website/src/labs/LanguageModelsLab.tsx'
+      - 'website/e2e/language-models.spec.ts'
 permissions:
   contents: read
 jobs:
-  materials:
+  validate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
-      - run: tar -czf /tmp/language-model-materials.tgz materials
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
-          name: language-model-materials
-          path: /tmp/language-model-materials.tgz
+          node-version: '22'
+          package-manager-cache: false
+      - name: Apply reviewed integration changes on the isolated candidate
+        run: python3 .github/integrate-language-models.py
+      - name: Install locked dependencies without lifecycle scripts
+        working-directory: website
+        run: npm ci --ignore-scripts --no-audit
+      - name: Retain full and runtime security gates
+        working-directory: website
+        run: |
+          npm run audit
+          npm run audit:runtime
+      - name: Format with the locked formatter
+        working-directory: website
+        run: |
+          npm run format
+          npm run format:check
+      - name: Export only approved source files for review
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          paths = '''README.md REVISION_NOTES.md checksums.sha256 notes/COURSE_SCOPE.md notes/Lecture-01_Introduction.md notes/Lecture-07_Transformer-and-LLM-I.md notes/README.md notes/Supplement-Language-Models.md resource_inventory.md source_manifest.tsv tools/check_notes.py website/DELIVERY.md website/README.md website/RELEASE_NOTES.md website/VERIFICATION.md website/e2e/core.spec.ts website/e2e/language-models.spec.ts website/package-lock.json website/package.json website/scripts/resources.ts website/src/App.tsx website/src/components/Notes.tsx website/src/components/Supplements.tsx website/src/content/course.ts website/src/content/modules.ts website/src/content/supplements.json website/src/engines/language-models.ts website/src/labs/LanguageModelsLab.tsx website/src/styles/app.css website/src/tests/language-models.test.tsx'''.split()
+          Path('/tmp/lm-reviewed.json').write_text(json.dumps({p:Path(p).read_text(encoding='utf-8') for p in paths}, ensure_ascii=False), encoding='utf-8')
+          PY
+      - name: Type and numerical regression checks
+        working-directory: website
+        run: |
+          npm run typecheck
+          npm test
+      - name: Build production subpath
+        working-directory: website
+        env:
+          BASE_PATH: /dlopt2026-learning-notes/
+        run: npm run build
+      - name: Browser acceptance on desktop and mobile
+        working-directory: website
+        env:
+          E2E_PREVIEW: '1'
+          BASE_PATH: /dlopt2026-learning-notes/
+          TEST_BASE_PATH: /dlopt2026-learning-notes/
+        run: |
+          npx --no-install playwright install chromium
+          npm run e2e
+      - name: Preserve original mathematical checks and verify the additional source
+        run: |
+          python3 tools/check_notes.py
+          python3 tools/test_math_notes.py
+          python3 tools/test_check_notes.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: language-model-reviewed-source
+          path: /tmp/lm-reviewed.json
           retention-days: 1
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: language-model-browser-results
+          path: website/test-results/
+          retention-days: 1
+  commit-reviewed-source:
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: language-model-reviewed-source
+          path: reviewed-source
+      - name: Commit validated files and remove temporary preparation files
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+        with:
+          script: |
+            const fs = require('node:fs');
+            const branch = 'feat/language-models-2026-11-03';
+            if (context.ref !== 'refs/heads/' + branch) throw Error('Wrong branch');
+            const allowed = new Set('README.md REVISION_NOTES.md checksums.sha256 notes/COURSE_SCOPE.md notes/Lecture-01_Introduction.md notes/Lecture-07_Transformer-and-LLM-I.md notes/README.md notes/Supplement-Language-Models.md resource_inventory.md source_manifest.tsv tools/check_notes.py website/DELIVERY.md website/README.md website/RELEASE_NOTES.md website/VERIFICATION.md website/e2e/core.spec.ts website/e2e/language-models.spec.ts website/package-lock.json website/package.json website/scripts/resources.ts website/src/App.tsx website/src/components/Notes.tsx website/src/components/Supplements.tsx website/src/content/course.ts website/src/content/modules.ts website/src/content/supplements.json website/src/engines/language-models.ts website/src/labs/LanguageModelsLab.tsx website/src/styles/app.css website/src/tests/language-models.test.tsx'.split(' '));
+            const source = JSON.parse(fs.readFileSync('reviewed-source/lm-reviewed.json', 'utf8'));
+            if (Object.keys(source).length !== allowed.size) throw Error('Unexpected source count');
+            const tree = Object.entries(source).map(([path, content]) => {
+              if (!allowed.has(path) || typeof content !== 'string' || content.length > 250000) throw Error('Unapproved source');
+              return {path, mode: '100644', type: 'blob', content};
+            });
+            for (const path of ['.github/integrate-language-models.py', '.github/workflows/language-models-prep.yml']) tree.push({path, mode:'100644', type:'blob', sha:null});
+            const {owner, repo} = context.repo;
+            const head = await github.rest.git.getRef({owner, repo, ref:'heads/' + branch});
+            if (head.data.object.sha !== context.sha) throw Error('Branch moved; review before retrying');
+            const base = await github.rest.git.getCommit({owner, repo, commit_sha:context.sha});
+            const next = await github.rest.git.createTree({owner, repo, base_tree:base.data.tree.sha, tree});
+            const commit = await github.rest.git.createCommit({owner, repo, message:'Integrate validated language-model notes and laboratory; remove preparation helpers', tree:next.data.sha, parents:[context.sha]});
+            await github.rest.git.updateRef({owner, repo, ref:'heads/' + branch, sha:commit.data.sha, force:false});
+            core.info('Validated candidate: ' + commit.data.sha);
