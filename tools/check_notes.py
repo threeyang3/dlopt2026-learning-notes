@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import os
 import hashlib
 import re
@@ -70,6 +71,21 @@ def main() -> int:
     if len(LECTURE_FILES) != 14:
         errors.append(f"expected 14 lecture notes, found {len(LECTURE_FILES)}")
 
+    supplements = json.loads((ROOT / "website/src/content/supplements.json").read_text(encoding="utf-8"))
+    supplement_pdfs = {entry["pdf"] for entry in supplements}
+    supplement_notes = {entry["note"] for entry in supplements}
+    if len(supplement_pdfs) != len(supplements) or len(supplement_notes) != len(supplements):
+        errors.append("duplicate supplemental PDF/note registration")
+    actual_supplements = {str(path.relative_to(ROOT)) for path in NOTES.glob("Supplement-*.md")}
+    if actual_supplements != supplement_notes:
+        errors.append("supplemental notes differ from explicit content index")
+    for entry in supplements:
+        if not (ROOT / entry["note"]).is_file():
+            errors.append(f"missing supplement note: {entry['note']}")
+        target = ROOT / entry["pdf"]
+        if target.is_file() and (target.stat().st_size != entry["bytes"] or hashlib.sha256(target.read_bytes()).hexdigest() != entry["sha256"]):
+            errors.append(f"supplement differs from source identity: {entry['pdf']}")
+
     md_files = markdown_files(ROOT)
     for path in md_files:
         text = path.read_text(encoding="utf-8")
@@ -91,7 +107,7 @@ def main() -> int:
 
         check_math(path, body, errors)
 
-    for path in LECTURE_FILES:
+    for path in LECTURE_FILES + sorted(NOTES.glob("Supplement-*.md")):
         text = path.read_text(encoding="utf-8")
         found = headings(path)
         missing = REQUIRED_HEADINGS - found
@@ -106,8 +122,18 @@ def main() -> int:
     manifest = ROOT / "source_manifest.tsv"
     with manifest.open(encoding="utf-8", newline="") as source:
         rows = list(csv.DictReader(source, delimiter="\t"))
-    if len(rows) != 35:
-        errors.append(f"expected 35 manifest rows, found {len(rows)}")
+    expected_count = 35 + len(supplements)
+    core_rows = [row for row in rows if row["lecture"].startswith("Lecture-")]
+    supplemental_rows = [row for row in rows if not row["lecture"].startswith("Lecture-")]
+    if len(core_rows) != 35 or len(rows) != expected_count:
+        errors.append(f"expected 35 core + {len(supplements)} supplemental manifest rows, found {len(rows)}")
+    if {row["target_path"] for row in supplemental_rows} != supplement_pdfs:
+        errors.append("supplemental manifest paths differ from explicit content index")
+    manifest_paths = {row["target_path"] for row in rows}
+    if len(manifest_paths) != len(rows):
+        errors.append("duplicate manifest target")
+    if manifest_paths != {str(path.relative_to(ROOT)) for path in (ROOT / "materials").rglob("*.pdf")}:
+        errors.append("PDF files differ from registered manifest")
     for row in rows:
         if not (ROOT / row["target_path"]).is_file():
             errors.append(f"missing material: {row['target_path']}")
@@ -118,8 +144,11 @@ def main() -> int:
         for line in checksum_file.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    if len(checksum_lines) != 35:
-        errors.append(f"expected 35 checksum rows, found {len(checksum_lines)}")
+    if len(checksum_lines) != expected_count:
+        errors.append(f"expected {expected_count} checksum rows, found {len(checksum_lines)}")
+    checksum_paths = [line.split(maxsplit=1)[1].strip() for line in checksum_lines if len(line.split(maxsplit=1)) == 2]
+    if len(set(checksum_paths)) != len(checksum_paths) or set(checksum_paths) != manifest_paths:
+        errors.append("checksum paths must match manifest exactly, without duplicates")
     for entry in checksum_lines:
         parts = entry.split(maxsplit=1)
         if len(parts) != 2:
@@ -141,7 +170,7 @@ def main() -> int:
         return 1
 
     print(
-        "OK: 14 notes, 35 materials, links, math delimiters, and SHA-256 checksums"
+        f"OK: 14 core notes + {len(supplements)} supplements, {expected_count} materials, links, math delimiters, and SHA-256 checksums"
     )
     return 0
 

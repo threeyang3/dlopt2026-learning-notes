@@ -12,3 +12,7 @@
 最终发布条件：PR 检查通过后 squash 合并，main 的完整生产门禁与 Pages deploy 成功。具体结果以对应 PR / Actions 为准。本文件不预先宣称尚未完成的检查通过。
 
 安全范围、基线告警、版本选择及回退边界见根目录 SECURITY.md。课程 PDF、域名和公开范围不变。
+
+## 1.1.0 — Language Models supplement (2026-11-03)
+
+Add the user-provided 56-page PDF unchanged, a page-linked Chinese study note, and four local-computation teaching panels: embedding lookup, n-gram counts/generation, single-layer RNN/BPTT, and scalar recurrent sensitivity. Preserve the original 14-lecture numbering/progress and 35 core PDF checksums; explicitly register one supplemental PDF and note. Include separate source-derived content, derivations, errata and implementation limits. No new dependencies, domain or repository-visibility changes. Retain security audit gates and add independent finite-difference and browser regressions.

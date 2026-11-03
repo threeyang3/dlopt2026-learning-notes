@@ -131,3 +131,13 @@ dlopt2026_learning_pack/
 
 `materials/` 中的 PDF 版权归原作者及原课程机构所有，仅作个人学习与课程复习留存；本仓库不应被视为这些原始课件的再发布授权。
 
+
+## 新增补充单元：Language Models（2026-11-03）
+
+原课程的 14 讲、35 份 PDF 保持不变；另收录 1 份用户提供的语言模型课件和 1 篇补充笔记。当前仓库共 36 份 PDF、1,235 页。原课程统计与历史审校记录不等于补充单元已经在当年课程清单内。
+
+- [原始课件：03_langmodel.pdf，56 页](materials/Supplement-Language-Models/03_langmodel.pdf)
+- [补充笔记：词嵌入、n-gram 与 RNN](notes/Supplement-Language-Models.md)
+- [网站语言模型实验室](https://threeyang.top/dlopt2026-learning-notes/#language-models)
+
+网站提供嵌入查表、n-gram 计数与采样、单层 RNN 前向/BPTT 单步训练、标量梯度传播；每个示例均标注数据来源和教学范围。不调整原课件、不改变原 14 讲进度、不增加新依赖。

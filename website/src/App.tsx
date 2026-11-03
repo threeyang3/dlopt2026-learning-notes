@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { course, labNames, resource } from "./content/course";
 import { Sources } from "./components/Sources";
 import { GradientLab } from "./labs/GradientLab";
-import { Notes } from "./components/Notes";
+import { Notes, SupplementNotes } from "./components/Notes";
 import { LearningContext } from "./components/LearningContext";
 import { StochasticLab } from "./labs/StochasticLab";
 import { LinearLab } from "./labs/LinearLab";
@@ -12,8 +12,15 @@ import { AttentionLab } from "./labs/AttentionLab";
 import { PrecisionLab } from "./labs/PrecisionLab";
 import { InferenceLab } from "./labs/InferenceLab";
 import { ResourcesLab } from "./labs/ResourcesLab";
+import { SupplementCatalog, SupplementSources } from "./components/Supplements";
+import supplements from "./content/supplements.json";
+const LanguageModelsLab = lazy(() =>
+  import("./labs/LanguageModelsLab").then((m) => ({
+    default: m.LanguageModelsLab,
+  })),
+);
 function routeAnchor(route: string) {
-  const match = /^lecture\/\d+\/(.+)$/.exec(route);
+  const match = /^(?:lecture\/\d+|supplement\/[a-z0-9-]+)\/(.+)$/.exec(route);
   if (!match) return undefined;
   try {
     return decodeURIComponent(match[1]);
@@ -74,6 +81,9 @@ export function App() {
   }
   const lecture = route.startsWith("lecture/")
     ? course.find((l) => l.id === +route.split("/")[1])
+    : undefined;
+  const supplement = route.startsWith("supplement/")
+    ? supplements.find((entry) => entry.id === route.split("/")[1])
     : undefined;
   return (
     <>
@@ -289,6 +299,7 @@ export function App() {
                   {done.includes(lecture.id) ? "取消掌握标记" : "标记已掌握"}
                 </button>
               </div>
+              {(lecture.id === 1 || lecture.id === 7) && <SupplementCatalog />}
               <Notes id={lecture.id} />
               <Sources ids={[lecture.id]} />
             </>
@@ -309,7 +320,28 @@ export function App() {
                 Lite / MuonM 尚待课堂材料确认。
               </p>
               <a href={resource("SOURCE_AUDIT.md")}>查看原始审校记录</a>
+              <SupplementCatalog />
+              <SupplementSources id="language-models" />
               <Sources ids={course.map((x) => x.id)} />
+            </>
+          )}
+          {route === "language-models" && (
+            <Suspense fallback={<p role="status">正在载入语言模型实验室…</p>}>
+              <LanguageModelsLab />
+            </Suspense>
+          )}
+          {supplement && (
+            <>
+              <div className="lab-intro">
+                <p>补充单元 · 不计入原 14 讲编号</p>
+                <h1>{supplement.title}</h1>
+                <p>{supplement.evidence}</p>
+                <a className="button primary" href={"#" + supplement.lab}>
+                  打开语言模型实验室
+                </a>
+              </div>
+              <SupplementNotes id={supplement.id} />
+              <SupplementSources id={supplement.id} />
             </>
           )}
           {route === "sgd" && <StochasticLab />}
@@ -329,7 +361,8 @@ export function App() {
             "sources",
             ...Object.keys(labNames),
           ].includes(route) &&
-            !lecture && (
+            !lecture &&
+            !supplement && (
               <section>
                 <h1>未找到页面</h1>
                 <a href="#map">回到课程地图</a>
@@ -442,6 +475,7 @@ function CourseIntroduction() {
           ))}
         </div>
       </section>
+      <SupplementCatalog />
       <section className="notice">
         <strong>笔记与动态实验的关系</strong>
         <p>
@@ -514,6 +548,7 @@ function CourseMap({
           </article>
         ))}
       </div>
+      <SupplementCatalog />
     </section>
   );
 }

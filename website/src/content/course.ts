@@ -7,6 +7,7 @@ export const labNames: Record<string, string> = {
   subspace: "低秩投影",
   zeroth: "零阶梯度估计",
   distributed: "分布式优化",
+  "language-models": "语言模型与 RNN",
   attention: "Attention",
   flash: "分块 Attention",
   precision: "浮点精度",
