@@ -16,6 +16,10 @@ test("慢字体下深链刷新和历史返回仍对齐标题", async ({ page }) 
         heading.evaluate((el) => Math.abs(el.getBoundingClientRect().top)),
       )
       .toBeLessThan(100);
+    // innerWidth grows with mobile overflow; compare against the emulated device.
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(page.viewportSize()!.width);
   };
   await page.goto("./#supplement/language-models/" + encodeURIComponent(id));
   await aligned();

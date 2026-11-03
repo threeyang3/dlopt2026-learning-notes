@@ -1,0 +1,19 @@
+/* Long hashes and identifiers must not enlarge a mobile layout viewport. */
+.note-content {
+  overflow-wrap: anywhere;
+}
+.note-content :not(pre) > code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.note-content pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+/* Keep long inline mathematics readable by scrolling it, not the whole page. */
+.note-content :is(p, li, td, th) > .katex {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  vertical-align: middle;
+}
