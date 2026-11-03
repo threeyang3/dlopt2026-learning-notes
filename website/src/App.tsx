@@ -14,6 +14,7 @@ import { InferenceLab } from "./labs/InferenceLab";
 import { ResourcesLab } from "./labs/ResourcesLab";
 import { SupplementCatalog, SupplementSources } from "./components/Supplements";
 import supplements from "./content/supplements.json";
+import { scheduleAnchorScroll } from "./components/anchor-scroll";
 const LanguageModelsLab = lazy(() =>
   import("./labs/LanguageModelsLab").then((m) => ({
     default: m.LanguageModelsLab,
@@ -32,18 +33,27 @@ function routeAnchor(route: string) {
 function useRoute() {
   const [route, setRoute] = useState(location.hash.slice(1) || "home");
   useEffect(() => {
+    const restoration = history.scrollRestoration;
+    history.scrollRestoration = "manual";
     const listener = () => {
       const next = location.hash.slice(1) || "home";
       setRoute(next);
-      if (!routeAnchor(next)) window.scrollTo(0, 0);
+      if (!routeAnchor(next))
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     };
     addEventListener("hashchange", listener);
-    return () => removeEventListener("hashchange", listener);
+    return () => {
+      removeEventListener("hashchange", listener);
+      history.scrollRestoration = restoration;
+    };
   }, []);
   useEffect(() => {
     const anchor = routeAnchor(route);
     if (anchor) {
-      document.getElementById(anchor)?.scrollIntoView({ block: "start" });
+      return scheduleAnchorScroll(
+        anchor,
+        () => (location.hash.slice(1) || "home") === route,
+      );
     }
   }, [route]);
   return route;

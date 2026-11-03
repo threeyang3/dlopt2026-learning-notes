@@ -1,7 +1,6 @@
 name: Verify course notes
+# Automatic note checks run in website.yml (PR) and pages.yml (main).
 on:
-  push:
-  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
